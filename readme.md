@@ -40,7 +40,7 @@ The instruction set consists of 3 types of instructions: instructions related to
   | :-----: | :---------------------: |
   | 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 |
 
-The detailed information of instructions are listed [here](/documentation/instruction-set.md).
+The detailed information of instructions are listed [here](Documentation/instruction-set.md).
 
 ## Physical Address Mapping
 
