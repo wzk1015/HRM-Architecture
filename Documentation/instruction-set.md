@@ -278,6 +278,22 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** None
 
+* **MOVE TO COPROCESSOR 0**
+
+  |             MTC0              |           RS           |
+  | :---------------------------: | :--------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 | OFFSET OF THE REGISTER |
+
+  **Format:** MFT0 *rt*
+
+  **Purpose: ** To load a number to one of the registers in coprocessor 0.
+
+  **Description:** CP0[*offset*] ← Register, *offset* = 0 for *rs* is CAUSE, *offset* = 1 for *rs* is EPC
+
+  **Operation:** //todo
+
+  **Exceptions:** None
+
 * **NO OPERATION**
 
   |              INBOX              |
