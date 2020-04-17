@@ -1,6 +1,37 @@
 # Instruction Set
 
+## Overview
+
+```assembly
+N-instrcutions:
+	add (number/indexed number)
+	sub (number/indexed number)
+	bumpup (number/indexed number)
+	bumpdown (number/indexed number)
+	copyfrom (number/indexed number)
+	copyto (number/indexed number)
+	
+J-instrcutions:
+	jump
+	jumpn
+	jumpz
+	
+S-instrcutions:
+	inbox
+	outbox
+	mfcause
+	mfepc
+	mtcause
+	mtepc
+	nop
+	eret
+```
+
+
+
 The detailed information of instructions are as follow:
+
+## N-instructions
 
 * **ADD Number**
 
@@ -23,6 +54,8 @@ The detailed information of instructions are as follow:
   ```
 
   **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
 
 * **ADD Indexed Number**
 
@@ -48,6 +81,44 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Algebraic Overflow, Empty Memory
 
+  
+
+* **SUBTRACT Number**
+
+  |  FUNC   | INDEXED |        OPCODE         |
+  | :-----: | :-----: | :-------------------: |
+  | 1 0 0 1 |    0    | ADDRESS OF THE NUMBER |
+
+  **Format:** SUB *address*
+
+  **Purpose: ** //todo
+
+  **Description:** Register ← Register + Memory[*address*]
+
+  **Operation:** //todo
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
+* **SUBTRACT Indexed Number**
+
+  |  FUNC   | INDEXED |            OPCODE             |
+  | :-----: | :-----: | :---------------------------: |
+  | 1 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+
+  **Format:** SUB [*address*]
+
+  **Purpose: ** //todo
+
+  **Description:** Register ← Register + Memory[Memory[*address*]]
+
+  **Operation:** //todo
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
 * **BUMPUP Number**
 
   |  FUNC   | INDEXED |        OPCODE         |
@@ -70,6 +141,8 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Algebraic Overflow, Empty Memory
 
+  
+
 * **BUMPUP Indexed Number**
 
   |  FUNC   | INDEXED |            OPCODE             |
@@ -85,6 +158,8 @@ The detailed information of instructions are as follow:
   **Operation:** //todo
 
   **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
 
 * **BUMPDOWN Number**
 
@@ -102,6 +177,8 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Algebraic Overflow, Empty Memory
 
+  
+
 * **BUMPDOWN Indexed Number**
 
   |  FUNC   | INDEXED |        OPCODE         |
@@ -117,6 +194,8 @@ The detailed information of instructions are as follow:
   **Operation:** //todo
 
   **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
 
 * **COPYFROM Address**
 
@@ -134,6 +213,8 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Empty Memory
 
+  
+
 * **COPYFROM Indexed Address**
 
   |  FUNC   | INDEXED |            OPCODE             |
@@ -149,6 +230,8 @@ The detailed information of instructions are as follow:
   **Operation:** //todo
 
   **Exceptions:** Empty Memory
+
+  
 
 * **COPYTO Address**
 
@@ -166,6 +249,8 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Empty Memory
 
+  
+
 * **COPYTO Indexed Address**
 
   |  FUNC   | INDEXED |            OPCODE             |
@@ -182,37 +267,9 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** Empty Memory
 
-* **EXCEPTION RETURN**
+  
 
-  |              INBOX              |
-  | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 |
-
-  **Format:** ERET
-
-  **Purpose: ** //todo
-
-  **Description:** Program Counter ← CP0[EPC]
-
-  **Operation:** //todo
-
-  **Exceptions:** None
-
-* **INBOX**
-
-  |              INBOX              |
-  | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 |
-
-  **Format:** INBOX
-
-  **Purpose: ** To replace the handheld number with the one picked from inbox. If there's nothing left in inbox then trap.
-
-  **Description:** Register ← Inbox Register
-
-  **Operation:** //todo
-
-  **Exceptions:** Inbox Empty
+## J-instrcutions
 
 * **JUMP**
 
@@ -262,41 +319,121 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** None
 
-* **MOVE FROM COPROCESSOR 0**
 
-  |             MFC0              |           RS           |
-  | :---------------------------: | :--------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 | OFFSET OF THE REGISTER |
 
-  **Format:** MFC0 *rs*
+## S-instructions
 
-  **Purpose: ** To load a number from one of the registers in coprocessor 0.
+* **INBOX**
 
-  **Description:** Register ← CP0[*offset*], *offset* = 0 for *rs* is CAUSE, *offset* = 1 for *rs* is EPC
+  |              INBOX              |
+  | :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 |
+
+  **Format:** INBOX
+
+  **Purpose: ** To replace the handheld number with the one picked from inbox. If there's nothing left in inbox then trap.
+
+  **Description:** Register ← Inbox Register
+
+  **Operation:** //todo
+
+  **Exceptions:** Inbox Empty
+
+  
+
+* **OUTBOX**
+
+  |             OUTBOX              |
+| :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 |
+  
+  **Format:** OUTBOX
+
+  **Purpose: ** //todo
+
+  **Description:** Outbox Register ← Register
+
+  **Operation:** //todo
+
+  **Exceptions:** Empty Memory
+
+  
+
+* **MOVE FROM CAUSE REGISTER**
+
+  |             MFCAUSE             |
+  | :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 0 |
+
+  **Format:** MFCAUSE
+
+  **Purpose: ** To load a number from CAUSE register in coprocessor 0.
+
+  **Description:** Register ← CP0[CAUSE]
 
   **Operation:** //todo
 
   **Exceptions:** None
 
-* **MOVE TO COPROCESSOR 0**
 
-  |             MTC0              |           RS           |
-  | :---------------------------: | :--------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 | OFFSET OF THE REGISTER |
 
-  **Format:** MFT0 *rt*
+* **MOVE FROM EPC REGISTER**
 
-  **Purpose: ** To load a number to one of the registers in coprocessor 0.
+  |              MFEPC              |
+  | :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 1 |
 
-  **Description:** CP0[*offset*] ← Register, *offset* = 0 for *rs* is CAUSE, *offset* = 1 for *rs* is EPC
+  **Format:** MFEPC
+
+  **Purpose: ** To load a number from EPC register in coprocessor 0.
+
+  **Description:** Register ← CP0[EPC]
 
   **Operation:** //todo
 
   **Exceptions:** None
+
+
+
+* **MOVE TO CAUSE REGISTER**
+
+  |             MTCAUSE             |
+  | :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 0 |
+
+  **Format:** MTCAUSE
+
+  **Purpose: ** To load a number to CAUSE register in coprocessor 0.
+
+  **Description:** CP0[CAUSE] ← Register 
+
+  **Operation:** //todo
+
+  **Exceptions:** None
+
+
+
+* **MOVE TO EPC REGISTER**
+
+  |              MFEPC              |
+  | :-----------------------------: |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 |
+
+  **Format:** MTEPC
+
+  **Purpose: ** To load a number to EPC register in coprocessor 0.
+
+  **Description:** CP0[EPC] ← Register 
+
+  **Operation:** //todo
+
+  **Exceptions:** None
+
+
 
 * **NO OPERATION**
 
-  |              INBOX              |
+  |               NOP               |
   | :-----------------------------: |
   | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 |
 
@@ -310,50 +447,20 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** None
 
-* **OUTBOX**
+  
 
-  |              INBOX              |
+* **EXCEPTION RETURN**
+
+  |              ERET               |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 |
+  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 |
 
-  **Format:** OUTBOX
-
-  **Purpose: ** //todo
-
-  **Description:** Outbox Register ← Register
-
-  **Operation:** //todo
-
-  **Exceptions:** Empty Memory
-
-* **SUBTRACT Number**
-
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 1 0 0 1 |    0    | ADDRESS OF THE NUMBER |
-
-  **Format:** SUB *address*
+  **Format:** ERET
 
   **Purpose: ** //todo
 
-  **Description:** Register ← Register + Memory[*address*]
+  **Description:** Program Counter ← CP0[EPC]
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
-
-* **SUBTRACT Indexed Number**
-
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 1 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
-
-  **Format:** SUB [*address*]
-
-  **Purpose: ** //todo
-
-  **Description:** Register ← Register + Memory[Memory[*address*]]
-
-  **Operation:** //todo
-
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** None
