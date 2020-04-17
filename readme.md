@@ -44,7 +44,7 @@ The detailed information of instructions are listed [here](Documentation/instruc
 
 ## Physical Address Mapping
 
-The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. Though the architecture is based on a 16-bit CPU, due to the design of instruction set, the size of the addressing space is only 2^12=4096 bits. Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
+The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. Though the architecture is based on a 16-bit CPU, due to the design of instruction set, the size of the addressing space is only 2^12^=`4096` bits. Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
 
 | Address |                      Description                       |
 | :-----: | :----------------------------------------------------: |
