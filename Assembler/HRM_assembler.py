@@ -4,24 +4,24 @@ n_func = {
     "bumpdown": "0011",
     "copyfrom": "0100",
     "copyto"  : "0101",
-    "sub"     : "1001",
+    "sub"     : "0110",
 }
 
 s_func = {
-    "inbox"  : "1111100000000000",
-    "outbox" : "1111100000000001",
-    "eret"   : "1111100000000010",
-    "nop"    : "0000000000000000",
-    "mfcause": "1111100000000100",
-    "mfepc"  : "1111100000000101",
-    "mtcause": "1111100000000110",
-    "mtepc"  : "1111100000000111"
+    "eret"   : "1111000000000000",
+    "inbox"  : "1111000000000001",
+    "outbox" : "1111000000000010",
+    "mfcause": "1111000000000100",
+    "mfepc"  : "1111000000000101",
+    "mtcause": "1111000000000110",
+    "mtepc"  : "1111000000000111",
+    "nop"    : "0000000000000000"
 }
 
 j_func = {
-    "jump" : "01100",
-    "jumpz": "10000",
-    "jumpn": "01110",
+    "jump" : "1000",
+    "jumpn": "1001",
+    "jumpz": "1010",
 }
 
 labels = {}
@@ -30,8 +30,8 @@ addrs = {}
 mips = []
 
 
-def int_to_bin11(integer):
-    return bin(integer)[2:].rjust(11, "0")  #split "0b" and extend to 11 bits
+def int_to_bin(integer, bits):
+    return bin(integer)[2:].rjust(bits, "0")  #split "0b" and extend to 11 bits
 
 
 def is_label(line):
@@ -217,7 +217,7 @@ def parse_instructions():
                     if imm >= 0x800:
                         print("number to large: {}".format(op))
                         raise ValueError
-                    bin_imm = int_to_bin11(imm)
+                    bin_imm = int_to_bin(imm, 11)
                     assemble_code.append({"ir": ir, "type": "n", "pc": hex(pc), "indexed": indexed, "imm": str(imm)})
                     machine_code_bin.append(n_func[ir]+indexed+bin_imm)
 
@@ -226,7 +226,7 @@ def parse_instructions():
                         print("wrong label: '{}'".format(op))
                         raise RuntimeError
                     addr = labels[op]
-                    bin_addr = int_to_bin11(addr)
+                    bin_addr = int_to_bin(addr, 12)
                     assemble_code.append({"ir": ir, "type": "j", "pc": hex(pc), "addr": hex(addr)})
                     machine_code_bin.append(j_func[ir]+bin_addr)
             pc += 0x2

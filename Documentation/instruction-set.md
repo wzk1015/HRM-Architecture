@@ -4,20 +4,20 @@
 
 ```assembly
 N-instrcutions:
-	add (number/indexed number)
-	sub (number/indexed number)
-	bumpup (number/indexed number)
-	bumpdown (number/indexed number)
-	copyfrom (number/indexed number)
-	copyto (number/indexed number)
+	0001 add (number/indexed number)
+	0010 bumpup (number/indexed number)
+	0011 bumpdown (number/indexed number)
+	0100 copyfrom (number/indexed number)
+	0101 copyto (number/indexed number)
+	0110 sub (number/indexed number)
 	
 J-instrcutions:
-	jump
-	jumpn
-	jumpz
+	1000 jump
+	1001 jumpn
+	1010 jumpz
 	
 S-instrcutions:
-	inbox
+	inbox 
 	outbox
 	mfcause
 	mfepc
@@ -39,7 +39,7 @@ The detailed information of instructions are as follow:
   | :-----: | :-----: | :---------------: |
   | 0 0 0 1 |    0    | ADDRESS OF NUMBER |
 
-  **Format: ** ADD *address*
+  **Format:** ADD *address*
 
   **Purpose:** To add a number to the handheld number. The number is indexed by *address*. If overflow occurs, or if there isn't any number at that address then trap.
 
@@ -63,7 +63,7 @@ The detailed information of instructions are as follow:
   | :-----: | :-----: | :---------------------------: |
   | 0 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
-  **Format: ** ADD [*address*]
+  **Format:** ADD [*address*]
 
   **Purpose:** To add a number to the handheld number. The number is indexed by the value stored at *address*. If overflow occurs, or if no number is found then trap.
 
@@ -83,6 +83,156 @@ The detailed information of instructions are as follow:
 
   
 
+* **BUMPUP Number**
+
+  |  FUNC   | INDEXED |        OPCODE         |
+  | :-----: | :-----: | :-------------------: |
+  | 0 0 1 0 |    0    | ADDRESS OF THE NUMBER |
+
+  **Format:** BUMPUP *address*
+
+  **Purpose:** To add a number to one and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
+
+  **Description:** Register ← Memory[*address*] + 0x0001
+
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  target <- Memory[true_address]
+  Register <- target + 0x0001
+  ```
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
+* **BUMPUP Indexed Number**
+
+  |  FUNC   | INDEXED |            OPCODE             |
+  | :-----: | :-----: | :---------------------------: |
+  | 0 0 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+
+  **Format:** BUMPUP [*address*]
+
+  **Purpose:** To add a number to one and replace the handheld number with the result. The number is indexed by the value stored at *address*. If overflow occurs, or if no number is found then trap.
+
+  **Description:** Register ← Memory[Memory[*address*]] + 0x0001
+
+  **Operation:** //todo
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
+* **BUMPDOWN Number**
+
+  |  FUNC   | INDEXED |        OPCODE         |
+  | :-----: | :-----: | :-------------------: |
+  | 0 0 1 1 |    0    | ADDRESS OF THE NUMBER |
+
+  **Format:** BUMPDN *address*
+
+  **Purpose:** To subtract one from a number and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
+
+  **Description:** Register ← Memory[*address*] - 0x0001
+
+  **Operation:** //todo
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
+* **BUMPDOWN Indexed Number**
+
+  |  FUNC   | INDEXED |        OPCODE         |
+  | :-----: | :-----: | :-------------------: |
+  | 0 0 1 1 |    1    | ADDRESS OF THE NUMBER |
+
+  **Format:** BUMPDN *address*
+
+  **Purpose:** To subtract one from a number and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
+
+  **Description:** Register ← Memory[Memory[*address*]] - 0x0001
+
+  **Operation:** //todo
+
+  **Exceptions:** Algebraic Overflow, Empty Memory
+
+  
+
+* **COPYFROM Address**
+
+  |  FUNC   | INDEXED |               OPCODE               |
+  | :-----: | :-----: | :--------------------------------: |
+  | 0 1 0 0 |    0    | ADDRESS OF THE NUMBER TO COPY FROM |
+
+  **Format:** COPYFROM *address*
+
+  **Purpose:** To replace the handheld number with the one stored at *address*. If no number is found then trap.
+
+  **Description:** Register ← Memory[*address*]
+
+  **Operation:** //todo
+
+  **Exceptions:** Empty Memory
+
+  
+
+* **COPYFROM Indexed Address**
+
+  |  FUNC   | INDEXED |            OPCODE             |
+  | :-----: | :-----: | :---------------------------: |
+  | 0 1 0 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+
+  **Format:** COPYFROM [*address*]
+
+  **Purpose:** To replace the handheld number with the stored one. The number is indexed by the value stored at *address*. If no number is found then trap.
+
+  **Description:** Register ← Memory[Memory[*address*]]
+
+  **Operation:** //todo
+
+  **Exceptions:** Empty Memory
+
+  
+
+* **COPYTO Address**
+
+  |  FUNC   | INDEXED |       OPCODE       |
+  | :-----: | :-----: | :----------------: |
+  | 0 1 0 1 |    0    | ADDRESS TO COPY TO |
+
+  **Format:** COPYTO *address*
+
+  **Purpose:** To replace the number stored at *address* with the handheld one. If there's no number in hand then trap.
+
+  **Description:** Memory[*address*] ← Register
+
+  **Operation:** //todo
+
+  **Exceptions:** Empty Memory
+
+  
+
+* **COPYTO Indexed Address**
+
+  |  FUNC   | INDEXED |            OPCODE             |
+  | :-----: | :-----: | :---------------------------: |
+  | 0 1 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+
+  **Format:** COPYTO [*address*]
+
+  **Purpose:** To replace the stored number with the handheld one. The number is indexed by the value stored at *address*. If there's no number in hand then trap.
+
+  **Description:** Memory[Memory[*address*]] ← Register
+
+  **Operation:** //todo
+
+  **Exceptions:** Empty Memory
+
+  
+  
 * **SUBTRACT Number**
 
   |  FUNC   | INDEXED |        OPCODE         |
@@ -119,163 +269,13 @@ The detailed information of instructions are as follow:
 
   
 
-* **BUMPUP Number**
-
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 0 |    0    | ADDRESS OF THE NUMBER |
-
-  **Format:** BUMPUP *address*
-
-  **Purpose: ** To add a number to one and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
-
-  **Description:** Register ← Memory[*address*] + 0x0001
-
-  **Operation:** 
-
-  ```
-  true_address <- address << 1
-  target <- Memory[true_address]
-  Register <- target + 0x0001
-  ```
-
-  **Exceptions:** Algebraic Overflow, Empty Memory
-
-  
-
-* **BUMPUP Indexed Number**
-
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 0 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
-
-  **Format:** BUMPUP [*address*]
-
-  **Purpose: ** To add a number to one and replace the handheld number with the result. The number is indexed by the value stored at *address*. If overflow occurs, or if no number is found then trap.
-
-  **Description:** Register ← Memory[Memory[*address*]] + 0x0001
-
-  **Operation:** //todo
-
-  **Exceptions:** Algebraic Overflow, Empty Memory
-
-  
-
-* **BUMPDOWN Number**
-
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 1 |    0    | ADDRESS OF THE NUMBER |
-
-  **Format:** BUMPDN *address*
-
-  **Purpose: ** To subtract one from a number and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
-
-  **Description:** Register ← Memory[*address*] - 0x0001
-
-  **Operation:** //todo
-
-  **Exceptions:** Algebraic Overflow, Empty Memory
-
-  
-
-* **BUMPDOWN Indexed Number**
-
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 1 |    1    | ADDRESS OF THE NUMBER |
-
-  **Format:** BUMPDN *address*
-
-  **Purpose: ** To subtract one from a number and replace the handheld number with the result. The number is indexed by *address*. If overflow occurs, or if no number is found then trap.
-
-  **Description:** Register ← Memory[Memory[*address*]] - 0x0001
-
-  **Operation:** //todo
-
-  **Exceptions:** Algebraic Overflow, Empty Memory
-
-  
-
-* **COPYFROM Address**
-
-  |  FUNC   | INDEXED |               OPCODE               |
-  | :-----: | :-----: | :--------------------------------: |
-  | 0 1 0 0 |    0    | ADDRESS OF THE NUMBER TO COPY FROM |
-
-  **Format:** COPYFROM *address*
-
-  **Purpose: ** To replace the handheld number with the one stored at *address*. If no number is found then trap.
-
-  **Description:** Register ← Memory[*address*]
-
-  **Operation:** //todo
-
-  **Exceptions:** Empty Memory
-
-  
-
-* **COPYFROM Indexed Address**
-
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 1 0 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
-
-  **Format:** COPYFROM [*address*]
-
-  **Purpose: ** To replace the handheld number with the stored one. The number is indexed by the value stored at *address*. If no number is found then trap.
-
-  **Description:** Register ← Memory[Memory[*address*]]
-
-  **Operation:** //todo
-
-  **Exceptions:** Empty Memory
-
-  
-
-* **COPYTO Address**
-
-  |  FUNC   | INDEXED |       OPCODE       |
-  | :-----: | :-----: | :----------------: |
-  | 0 1 0 1 |    0    | ADDRESS TO COPY TO |
-
-  **Format:** COPYTO *address*
-
-  **Purpose: ** To replace the number stored at *address* with the handheld one. If there's no number in hand then trap.
-
-  **Description:** Memory[*address*] ← Register
-
-  **Operation:** //todo
-
-  **Exceptions:** Empty Memory
-
-  
-
-* **COPYTO Indexed Address**
-
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 1 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
-
-  **Format:** COPYTO [*address*]
-
-  **Purpose: ** To replace the stored number with the handheld one. The number is indexed by the value stored at *address*. If there's no number in hand then trap.
-
-  **Description:** Memory[Memory[*address*]] ← Register
-
-  **Operation:** //todo
-
-  **Exceptions:** Empty Memory
-
-  
-
 ## J-instrcutions
 
 * **JUMP**
 
-  |   FUNC    |            ADDR            |
-  | :-------: | :------------------------: |
-  | 0 1 1 0 0 | ADDRESS OF THE INSTRUCTION |
+  |  FUNC   |            ADDR            |
+  | :-----: | :------------------------: |
+  | 1 0 0 0 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMP *label*
 
@@ -287,11 +287,13 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** None
 
+  
+
 * **JUMP if NEGATIVE**
 
-  |   FUNC    |            ADDR            |
-  | :-------: | :------------------------: |
-  | 0 1 1 1 0 | ADDRESS OF THE INSTRUCTION |
+  |  FUNC   |            ADDR            |
+  | :-----: | :------------------------: |
+  | 1 0 0 1 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMPN *label*
 
@@ -303,11 +305,13 @@ The detailed information of instructions are as follow:
 
   **Exceptions:** None
 
+  
+
 * **JUMP if ZERO**
 
-  |   FUNC    |            ADDR            |
-  | :-------: | :------------------------: |
-  | 1 0 0 0 0 | ADDRESS OF THE INSTRUCTION |
+  |  FUNC   |            ADDR            |
+  | :-----: | :------------------------: |
+  | 1 0 1 0 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMPN *label*
 
@@ -327,7 +331,7 @@ The detailed information of instructions are as follow:
 
   |              INBOX              |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 |
 
   **Format:** INBOX
 
@@ -345,7 +349,7 @@ The detailed information of instructions are as follow:
 
   |             OUTBOX              |
 | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 0 |
   
   **Format:** OUTBOX
 
@@ -363,7 +367,7 @@ The detailed information of instructions are as follow:
 
   |             MFCAUSE             |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 0 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 0 |
 
   **Format:** MFCAUSE
 
@@ -381,7 +385,7 @@ The detailed information of instructions are as follow:
 
   |              MFEPC              |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 1 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 1 |
 
   **Format:** MFEPC
 
@@ -399,7 +403,7 @@ The detailed information of instructions are as follow:
 
   |             MTCAUSE             |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 0 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 |
 
   **Format:** MTCAUSE
 
@@ -417,7 +421,7 @@ The detailed information of instructions are as follow:
 
   |              MFEPC              |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 |
 
   **Format:** MTEPC
 
@@ -453,7 +457,7 @@ The detailed information of instructions are as follow:
 
   |              ERET               |
   | :-----------------------------: |
-  | 1 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 |
 
   **Format:** ERET
 
