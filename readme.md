@@ -44,19 +44,19 @@ The detailed information of instructions are listed [here](Documentation/instruc
 
 ## Physical Address Mapping
 
-The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. Though the architecture is based on a 16-bit CPU, due to the design of instruction set, the size of the addressing space is only 2^12^=`4096` bits. Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
+The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. Though the architecture is based on a 16-bit CPU, due to the design of instruction set, the size of the addressing space is only 2^13^=`8192` bytes. Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
 
 | Address |                      Description                       |
 | :-----: | :----------------------------------------------------: |
-|  0xfff  |              Memory mapping limit address              |
-|  0xfff  |               Kernel space high address                |
+| 0x1fff  |              Memory mapping limit address              |
+| 0x1fff  |               Kernel space high address                |
 |  0x800  | Kernel text base address(Including exception handlers) |
 |  0x7fd  |       Reserved address for output device(OUTBOX)       |
 |  0x7fb  |        Reserved address for input device(INBOX)        |
 |  0x7fa  |                Kernel data high address                |
 |  0x400  |                Kernel data base address                |
 |  0x3ff  |                   Text limit address                   |
-|  0x80   |                   Text base address                    |
-|  0x7f   |                   Data limit address                   |
+|  0x100  |                   Text base address                    |
+|  0xff   |                   Data limit address                   |
 |   0x0   |                   Data base address                    |
 

@@ -38,10 +38,42 @@ def is_label(line):
     return line.endswith(":")
 
 
+def remove_annotation_and_empty_lines():
+    global lines
+
+    for i in range(len(lines)):
+        if "#" in lines[i]:  #remove annotation
+            idx = lines[i].index("#")
+            lines[i] = lines[i][:idx].strip()
+        else:
+            lines[i] = lines[i].strip()
+    new_lines = lines[:]
+    for i in range(len(lines)):
+        if lines[i].strip() == "":  #remove empty line (including annotation line)
+            new_lines.remove(lines[i])
+    lines = new_lines[:]
+    #print(lines)
+
+
 def data_alloc():
     global lines
     global addrs
-    current_start_addr = 0x0
+
+    #.addr
+    for i in range(len(lines)):
+        line = lines[i].strip("\n").strip().lower()
+        if line.startswith(".addr"):
+            name = line.split()[1]
+            addr = line.split()[2]
+            addrs[name] = hex(int(int(addr, 16)/2))
+            print("{}: {}".format(name, hex(int(addr, 16))))
+
+    if "kernel_data_base" in addrs.keys():
+        start_addr = int(addrs["kernel_data_base"], 16)
+    else:
+        start_addr = 0x0
+    current_start_addr = start_addr
+    #.data
     i, j = -1, -1
     for i in range(len(lines)):
         line = lines[i].strip("\n").strip().lower()
@@ -65,21 +97,13 @@ def data_alloc():
         if type == ".space":
             addrs[name] = hex(current_start_addr)
             current_start_addr += int(addr)
-            if current_start_addr > 0x7f:
+            if current_start_addr-start_addr > 0x100:
                 print("alloc memory out of range")
                 raise MemoryError
         else:
             print("wrong .data type: {}".format(type))
             raise TypeError
         print("{}: {}".format(name, addrs[name]))
-
-    for i in range(len(lines)):
-        line = lines[i].strip("\n").strip().lower()
-        if line.startswith(".addr"):
-            name = line.split()[1]
-            addr = line.split()[2]
-            addrs[name] = hex(int(addr, 16))
-            print("{}: {}".format(name, addrs[name]))
 
     for i in range(len(lines)):
         for name in addrs.keys():
@@ -139,7 +163,10 @@ def macro_define():
 
 def make_labels():
     global lines
-    pc = 0x80
+    if "kernel_text_base" in addrs.keys():
+        pc = int(addrs["kernel_text_base"], 16)
+    else:
+        pc = 0x80
     find_text = False
     for i in range(len(lines)):
         line = lines[i].strip("\n").strip().lower()
@@ -150,7 +177,6 @@ def make_labels():
             continue
         if i < len(lines)-1:
             next_line = lines[i+1].strip("\n").strip()
-
             if is_label(line) and not is_label(next_line):
                 labels[line.strip(":")] = pc
                 prev = i-1
@@ -174,13 +200,19 @@ def make_labels():
                     prev -= 1
             elif not is_label(line):
                 pc += 0x2
+    if not find_text:
+        print(".text not found")
+        raise RuntimeError
 
 
 def parse_instructions():
     global lines
     global assemble_code
     global machine_code_bin
-    pc = 0x80
+    if "kernel_text_base" in addrs.keys():
+        pc = int(addrs["kernel_text_base"], 16)
+    else:
+        pc = 0x80
     find_text = True
     for i in range(len(lines)):
         line = lines[i].strip()
@@ -223,7 +255,7 @@ def parse_instructions():
 
                 elif ir in j_func.keys():
                     if op not in labels.keys():
-                        print("wrong label: '{}'".format(op))
+                        print("label not found: '{}'".format(op))
                         raise RuntimeError
                     addr = labels[op]
                     bin_addr = int_to_bin(addr, 12)
@@ -346,17 +378,16 @@ def hrm2mips():
 
 
 if __name__ == '__main__':
-    f_in = open("code.txt")
-    f_out1 = open("machine_code_bin.txt", "w")
-    f_out2 = open("machine_code_hex.txt", "w")
-    f_out3 = open("mips_code.txt", "w")
+    f_in = open("examples/code.txt")
+    f_out1 = open("examples/machine_code_bin.txt", "w")
+    f_out2 = open("examples/machine_code_hex.txt", "w")
+    f_out3 = open("examples/mips_code.txt", "w")
     lines = f_in.readlines()
     assemble_code = []
     machine_code_bin = []
     machine_code_hex = []
 
-    while "\n" in lines:
-        lines.remove("\n")
+    remove_annotation_and_empty_lines()
 
     macro_define()
 

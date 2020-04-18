@@ -17,6 +17,7 @@ outbox
 copyto kernel_data
 copyfrom [data1]
 add data2
+ #macros
 test(1,2)
 test(3,4)
 inbox
@@ -26,6 +27,7 @@ mfepc
 mtepc
 eret
 copyfrom [1]
+jumpz milk2 #milk2 and milk1 are the same
 
 copyto 2
 jumpn milk
@@ -35,6 +37,7 @@ chocolate:
 
 add 5
 outbox
+milk2:
 milk:
 bumpup [6]
 bumpup 6

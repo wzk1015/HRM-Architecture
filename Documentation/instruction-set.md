@@ -53,7 +53,7 @@ The detailed information of instructions are as follow:
   Register <- Register + addend
   ```
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
 
   
 
@@ -79,7 +79,7 @@ The detailed information of instructions are as follow:
   Register <- Register + addend
   ```
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
 
   
 
@@ -103,7 +103,7 @@ The detailed information of instructions are as follow:
   Register <- target + 0x0001
   ```
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
   
 
@@ -121,7 +121,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
   
 
@@ -139,7 +139,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
   
 
@@ -157,7 +157,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
   
 
@@ -175,7 +175,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Empty Memory
+  **Exceptions:** Empty Memory, Permisson Denied
 
   
 
@@ -193,7 +193,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Empty Memory
+  **Exceptions:** Empty Memory, Permisson Denied
 
   
 
@@ -211,7 +211,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Empty Memory
+  **Exceptions:** Empty Register, Permisson Denied
 
   
 
@@ -229,7 +229,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Empty Memory
+  **Exceptions:** Empty Register, Permisson Denied
 
   
   
@@ -247,7 +247,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
 
   
 
@@ -265,7 +265,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Algebraic Overflow, Empty Memory
+  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
 
   
 
@@ -285,7 +285,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
   
 
@@ -303,7 +303,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
   
 
@@ -321,7 +321,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
 
 
@@ -341,7 +341,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Inbox Empty
+  **Exceptions:** Inbox Trap
 
   
 
@@ -359,7 +359,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** Empty Memory
+  **Exceptions:** Outbox Trap
 
   
 
@@ -377,7 +377,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
 
 
@@ -395,7 +395,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
 
 
@@ -413,7 +413,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
 
 
@@ -431,7 +431,7 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
 
 
 
@@ -467,4 +467,4 @@ The detailed information of instructions are as follow:
 
   **Operation:** //todo
 
-  **Exceptions:** None
+  **Exceptions:** Permisson Denied
