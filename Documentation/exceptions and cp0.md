@@ -25,7 +25,7 @@ HRM-CPU supports exception handling by utilizing CP0.  This document explains:
 
 * using `mfcause` `mtcause` `mfepc` `mtepc` `eret` `jumpr` in user mode (*EXL*=0)
 * jumping out of  *text* area address in user mode
-* reading or writing *static data* area or kernel address in user mode
+* writing *static data* area or kernel address in user mode (reading *static data* is allowed so user can use constants)
 
 Note that *Permission Denied* will not appear in kernel mode (In fact, **any** exceptions will be ignored in kernel mode).
 
