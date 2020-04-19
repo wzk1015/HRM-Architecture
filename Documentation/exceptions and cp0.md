@@ -17,17 +17,17 @@ HRM-CPU supports exception handling by utilizing CP0.  This document explains:
 | 0x2     | Empty Memory             | add sub bumpup bumpdown copyfrom |
 | 0x3     | Empty Register           | add sub copyto mtcause mtepc     |
 | 0x4     | Unrecgonized Instrcution | *after J-instructions or eret*   |
-| 0x5     | Permission Denied*\**    | add sub bumpup bumpdown copyfrom |
+| 0x5     | Permission Denied*       | add sub bumpup bumpdown copyfrom |
 | 0x6     | Inbox Trap               | inbox                            |
 | 0x7     | Outbox Trap              | outbox                           |
 
-*\**About *Permission Denied*: This can appear when:
+*About *Permission Denied*: This can appear when:
 
 * using `mfcause` `mtcause` `mfepc` `mtepc` `eret` `jumpr` in user mode (*EXL*=0)
-* jumping to kernel address in user mode
-* reading or writing address in user mode
+* jumping out of  *text* area address in user mode
+* reading or writing *static data* area or kernel address in user mode
 
-Note that *Permission Denied* will not appear in kernel mode (In fact, **all** exceptions will be ignored in kernel mode).
+Note that *Permission Denied* will not appear in kernel mode (In fact, **any** exceptions will be ignored in kernel mode).
 
 
 
@@ -85,25 +85,24 @@ Then CPU begins to run the code of exception handler. Normaly, handler should:
 Here is an example of exception handler. You can find this handler example in `codes/handler.txt`.
 
 ```assembly
-.addr kernel_data_base 0x400
-.addr kernel_data_high 0x7fa
-.addr inbox_addr 0x7fb
-.addr outbox_addr 0x7fd
-.addr kernel_text_base 0x800
-.addr pow_2_15 0x802
-.addr pow_2_14 0x804
-.addr pow_2_13 0x806
-.addr pow_2_12 0x808
-.addr pow_2_11 0x810
-.addr zero 0x812
-.addr one 0x814
-.addr two 0x816
-.addr three 0x818
-.addr four 0x820
-.addr five 0x822
-.addr six 0x824
-.addr seven 0x826
-.addr empty_value 0x828
+.addr data_base 0x100
+.addr addr_inbox 0x282
+.addr addr_outbox 0x284
+.addr kernel_text_base 0x4000
+.addr pow_2_15 0x248
+.addr pow_2_14 0x246
+.addr pow_2_13 0x244
+.addr pow_2_12 0x242
+.addr pow_2_11 0x240
+.addr zero 0x200
+.addr one 0x202
+.addr two 0x204
+.addr three 0x206
+.addr four 0x208
+.addr five 0x210
+.addr six 0x212
+.addr seven 0x214
+.addr empty_value 0x280
 
 .data
 	reg_field:		.space 2 
@@ -128,7 +127,7 @@ Here is an example of exception handler. You can find this handler example in `c
 	copyto exccode
 
 	branch_exccode(one, overflow)	#branch based on exccode
-	branch_exccode(two, empty_mem)
+	branch_exccode(two, empty_mem)
 	branch_exccode(three, empty_reg)
 	branch_exccode(four, unrec_instr)
 	branch_exccode(five, permission_denied)
@@ -150,16 +149,6 @@ permission_denied:
 	jump end
 
 empty_mem:
-	#mfepc		#save 0 to wrong address
-	#sub pow_2_15
-	#sub pow_2_14
-	#sub pow_2_13
-	#sub pow_2_12
-	#sub pow_2_11
-	#copyto wrong_addr
-	#copyfrom zero
-	#copyto [wrong_addr]
-	#jump end
 	copyfrom zero	#load 0 to reg
 	copyto reg_field
 	jump end
@@ -173,10 +162,10 @@ unrec_instr:
 	jump end		#epc has been set to addr(jump/eret)+2 by hardware, so just jump
 
 inbox_trap:
-	copyfrom inbox_addr
+	copyfrom [addr_inbox]
 	sub empty_value
 	jumpz inbox_empty	#judge if inbox_addr is empty
-	copyfrom inbox_addr
+	copyfrom [addr_inbox]
 	jump end
 	
 inbox_empty:
@@ -187,7 +176,7 @@ outbox_trap:
 	sub empty_value
 	jumpz crash	#if reg is empty, carsh
 	copyfrom reg_field
-	copyto outbox_addr
+	copyto [addr_outbox]
 	jump end
 
 end:
@@ -196,3 +185,4 @@ end:
 	copyfrom reg_field	#recover register
 	eret		#return
 ```
+
