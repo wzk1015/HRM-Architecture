@@ -237,7 +237,7 @@ The detailed information of instructions are as follow:
 
   |  FUNC   | INDEXED |        OPCODE         |
   | :-----: | :-----: | :-------------------: |
-  | 1 0 0 1 |    0    | ADDRESS OF THE NUMBER |
+  | 0 1 1 0 |    0    | ADDRESS OF THE NUMBER |
 
   **Format:** SUB *address*
 
@@ -255,7 +255,7 @@ The detailed information of instructions are as follow:
 
   |  FUNC   | INDEXED |            OPCODE             |
   | :-----: | :-----: | :---------------------------: |
-  | 1 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | 0 1 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** SUB [*address*]
 
@@ -363,7 +363,7 @@ The detailed information of instructions are as follow:
 
   
 
-* **MOVE FROM CAUSE REGISTER**
+* **MOVE FROM CAUSE REGISTER** *(kernel mode instruction)*
 
   |             MFCAUSE             |
   | :-----------------------------: |
@@ -381,7 +381,7 @@ The detailed information of instructions are as follow:
 
 
 
-* **MOVE FROM EPC REGISTER**
+* **MOVE FROM EPC REGISTER** *(kernel mode instruction)*
 
   |              MFEPC              |
   | :-----------------------------: |
@@ -399,7 +399,7 @@ The detailed information of instructions are as follow:
 
 
 
-* **MOVE TO CAUSE REGISTER**
+* **MOVE TO CAUSE REGISTER** *(kernel mode instruction)*
 
   |             MTCAUSE             |
   | :-----------------------------: |
@@ -417,7 +417,7 @@ The detailed information of instructions are as follow:
 
 
 
-* **MOVE TO EPC REGISTER**
+* **MOVE TO EPC REGISTER ** *(kernel mode instruction)*
 
   |              MFEPC              |
   | :-----------------------------: |
@@ -453,7 +453,7 @@ The detailed information of instructions are as follow:
 
   
 
-* **EXCEPTION RETURN**
+* **EXCEPTION RETURN** *(kernel mode instruction)*
 
   |              ERET               |
   | :-----------------------------: |
@@ -464,6 +464,24 @@ The detailed information of instructions are as follow:
   **Purpose: ** //todo
 
   **Description:** Program Counter ← CP0[EPC]
+
+  **Operation:** //todo
+
+  **Exceptions:** Permisson Denied
+
+
+
+* **JUMP REGISTER** *(kernel mode instruction)*
+
+  |              JUMPR              |
+  | :-----------------------------: |
+  | 1 1 1 1 0 0 0 0 0 0 0 0 1 0 0 0 |
+
+  **Format:** JUMPR
+
+  **Purpose: ** //todo
+
+  **Description:**  JUMP to address in Register
 
   **Operation:** //todo
 

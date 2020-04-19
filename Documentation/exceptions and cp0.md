@@ -17,13 +17,13 @@ HRM-CPU supports exception handling by utilizing CP0.  This document explains:
 | 0x2     | Empty Memory             | add sub bumpup bumpdown copyfrom |
 | 0x3     | Empty Register           | add sub copyto mtcause mtepc     |
 | 0x4     | Unrecgonized Instrcution | *after J-instructions or eret*   |
-| 0x5     | Permission Denied        | add sub bumpup bumpdown copyfrom |
+| 0x5     | Permission Denied*\**    | add sub bumpup bumpdown copyfrom |
 | 0x6     | Inbox Trap               | inbox                            |
 | 0x7     | Outbox Trap              | outbox                           |
 
-About *Permission Denied*: This can appear when:
+*\**About *Permission Denied*: This can appear when:
 
-* using `mfcause` `mtcause` `mfepc` `mtepc` `eret` in user mode (*EXL*=0)
+* using `mfcause` `mtcause` `mfepc` `mtepc` `eret` `jumpr` in user mode (*EXL*=0)
 * jumping to kernel address in user mode
 * reading or writing address in user mode
 
@@ -41,7 +41,7 @@ Exception handler may read EPC by `mfepc`, and then modify it by `mtepc`. For ex
 
 When `eret`, PC is set to the address in EPC to return from exception.
 
-Note that when *Unrecgonized Instrcution* encountered （after J-instructions or `eret`）, EPC is set to address of previous instruction's next instruction, i.e. `addr(jump/eret) + 2`.
+Note that when *Unrecgonized Instrcution* encountered after J-instructions or `eret`, EPC is set to address of previous instruction's next instruction, i.e. `addr(jump/eret) + 2`, by hardware.
 
 ### Cause
 
@@ -85,5 +85,114 @@ Then CPU begins to run the code of exception handler. Normaly, handler should:
 Here is an example of exception handler. You can find this handler example in `codes/handler.txt`.
 
 ```assembly
+.addr kernel_data_base 0x400
+.addr kernel_data_high 0x7fa
+.addr inbox_addr 0x7fb
+.addr outbox_addr 0x7fd
+.addr kernel_text_base 0x800
+.addr pow_2_15 0x802
+.addr pow_2_14 0x804
+.addr pow_2_13 0x806
+.addr pow_2_12 0x808
+.addr pow_2_11 0x810
+.addr zero 0x812
+.addr one 0x814
+.addr two 0x816
+.addr three 0x818
+.addr four 0x820
+.addr five 0x822
+.addr six 0x824
+.addr seven 0x826
+.addr empty_value 0x828
 
+.data
+	reg_field:		.space 2 
+	exception_counter:	.space 2
+	exccode:		.space 2
+	wrong_addr:	.space 2
+
+.macro branch_exccode(%number, %label)
+	copyfrom exccode
+	sub %number
+	jumpz %label
+.end_macro
+
+.text
+	copyto reg_field 		# save register
+	bumpup exception_counter	# update counter
+	copyto exception_counter
+
+	mfcause			#read exccode
+	sub pow_2_15
+	#sub pow_2_14		#remove exl. crash is already zero
+	copyto exccode
+
+	branch_exccode(one, overflow)	#branch based on exccode
+	branch_exccode(two, empty_mem)
+	branch_exccode(three, empty_reg)
+	branch_exccode(four, unrec_instr)
+	branch_exccode(five, permission_denied)
+	branch_exccode(six, inbox_trap)
+	branch_exccode(seven, outbox_trap)
+	jump end				#unknown exception
+
+crash:
+	mfcause		#crash
+	add pow_2_14
+	mtcause
+	jump end
+
+overflow:
+permission_denied:
+	mfepc		#skip wrong instruction by adding 2 to EPC
+	add two
+	mtepc
+	jump end
+
+empty_mem:
+	#mfepc		#save 0 to wrong address
+	#sub pow_2_15
+	#sub pow_2_14
+	#sub pow_2_13
+	#sub pow_2_12
+	#sub pow_2_11
+	#copyto wrong_addr
+	#copyfrom zero
+	#copyto [wrong_addr]
+	#jump end
+	copyfrom zero	#load 0 to reg
+	copyto reg_field
+	jump end
+	
+empty_reg:
+	copyfrom zero	#load 0 to reg
+	copyto reg_field
+	jump end
+
+unrec_instr:
+	jump end		#epc has been set to addr(jump/eret)+2 by hardware, so just jump
+
+inbox_trap:
+	copyfrom inbox_addr
+	sub empty_value
+	jumpz inbox_empty	#judge if inbox_addr is empty
+	copyfrom inbox_addr
+	jump end
+	
+inbox_empty:
+	jump crash
+
+outbox_trap:
+	copyfrom reg_field
+	sub empty_value
+	jumpz crash	#if reg is empty, carsh
+	copyfrom reg_field
+	copyto outbox_addr
+	jump end
+
+end:
+	copyfrom zero	#reset cause
+	mtcause
+	copyfrom reg_field	#recover register
+	eret		#return
 ```

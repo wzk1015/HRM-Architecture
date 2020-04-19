@@ -44,19 +44,37 @@ The detailed information of instructions are listed [here](Documentation/instruc
 
 ## Physical Address Mapping
 
-The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. Though the architecture is based on a 16-bit CPU, due to the design of instruction set, the size of the addressing space is only 2^13^=`8192` bytes. Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
+The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. 
 
-| Address |                      Description                       |
-| :-----: | :----------------------------------------------------: |
-| 0x1fff  |              Memory mapping limit address              |
-| 0x1fff  |               Kernel space high address                |
-|  0x800  | Kernel text base address(Including exception handlers) |
-|  0x7fd  |       Reserved address for output device(OUTBOX)       |
-|  0x7fb  |        Reserved address for input device(INBOX)        |
-|  0x7fa  |                Kernel data high address                |
-|  0x400  |                Kernel data base address                |
-|  0x3ff  |                   Text limit address                   |
-|  0x100  |                   Text base address                    |
-|  0xff   |                   Data limit address                   |
-|   0x0   |                   Data base address                    |
+The size of addressing space is 2^16^ = `65536` bytes. However, due to the design of instruction set, J-instructions can only reach 2^12<<1^=`8192`bytes, and 2^11<1^ = `4096` bytes for N-instructions. These are enough for user (as all user memory are lower than `0xfff`), and kernel must use kernel mode instruction `jumpr` to jump to the whole addressing space. Kernel may use **indexed** N-instructions to operate the whole space by putting intended address in user's data area. (e.g. `copyfrom intended_addr  copyto 0x0  add [0]`)
 
+Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
+
+| Address |                 Description                 |
+| :-----: | :-----------------------------------------: |
+| 0xffff  |            Memory mapping limit             |
+| 0xffff  |             Kernel space limit              |
+| 0xfffd  | Reserved address for output device (OUTBOX) |
+| 0xfffb  |  Reserved address for input device (INBOX)  |
+| 0xfffa  |              Kernel text limit              |
+| 0x4180  |              Exception handler              |
+| 0x4000  |              Kernel text base               |
+| 0x3fff  |              Kernel data limit              |
+| 0x1000  |  Kernel data base (lower bound for kernel)  |
+|  0xfff  |      Text limit (upper bound for user)      |
+|  0x300  |                  Text base                  |
+|  0x2ff  |              Static data limit              |
+|  0x200  |            Static data*\** base             |
+|  0x1ff  |                 Data limit                  |
+|   0x0   |                  Data base                  |
+
+
+
+*\** About *kernel static data*: Due to the one-register architecture and instruction set which does not support immediate number, assembly codes need constant numbers for operations. HRM memory mapping provides **static data area** with similar functions like constant registers. This area contains common constants.  Static data area is inside user's space so it can be reached by both user and kernel. Constants included are listed as follows:
+
+* basic integers - 0x0~0x10
+* power of two  - 2^k^ (k=0, 1, ... 16) 
+* value of empty momery and register - 0x8000
+* address of inbox - 0xfffb
+* address of outbox - 0xfffd
+* ...

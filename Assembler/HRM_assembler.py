@@ -15,19 +15,21 @@ s_func = {
     "mfepc"  : "1111000000000101",
     "mtcause": "1111000000000110",
     "mtepc"  : "1111000000000111",
+    "jumpr"  : "1111000000001000",
     "nop"    : "0000000000000000"
 }
 
 j_func = {
     "jump" : "1000",
     "jumpn": "1001",
-    "jumpz": "1010",
+    "jumpz": "1010"
 }
 
 labels = {}
 macros = {}
 addrs = {}
 mips = []
+text_pc = 0x400
 
 
 def int_to_bin(integer, bits):
@@ -58,6 +60,7 @@ def remove_annotation_and_empty_lines():
 def data_alloc():
     global lines
     global addrs
+    global text_pc
 
     #.addr
     for i in range(len(lines)):
@@ -70,6 +73,8 @@ def data_alloc():
 
     if "kernel_data_base" in addrs.keys():
         start_addr = int(addrs["kernel_data_base"], 16)
+    elif "data_base" in addrs.keys():
+        start_addr = int(addrs["data_base"], 16)
     else:
         start_addr = 0x0
     current_start_addr = start_addr
@@ -108,6 +113,15 @@ def data_alloc():
     for i in range(len(lines)):
         for name in addrs.keys():
             lines[i] = lines[i].replace(name, addrs[name])
+
+    if "handler_base" in addrs.keys():
+        text_pc = int(addrs["handler_base"], 16)
+    elif "kernel_text_base" in addrs.keys():
+        text_pc = int(addrs["kernel_text_base"], 16)
+    elif "text_base" in addrs.keys():
+        text_pc = int(addrs["text_base"], 16)
+    else:
+        text_pc = 0x300
 
 
 def macro_parse(lines, i, j):
@@ -163,10 +177,8 @@ def macro_define():
 
 def make_labels():
     global lines
-    if "kernel_text_base" in addrs.keys():
-        pc = int(addrs["kernel_text_base"], 16)
-    else:
-        pc = 0x80
+    pc = text_pc
+
     find_text = False
     for i in range(len(lines)):
         line = lines[i].strip("\n").strip().lower()
@@ -209,10 +221,8 @@ def parse_instructions():
     global lines
     global assemble_code
     global machine_code_bin
-    if "kernel_text_base" in addrs.keys():
-        pc = int(addrs["kernel_text_base"], 16)
-    else:
-        pc = 0x80
+    pc = text_pc
+
     find_text = True
     for i in range(len(lines)):
         line = lines[i].strip()
@@ -275,14 +285,18 @@ def hrm2mips():
         ir = ac["ir"]
         if ir in j_func.keys():
             addr = ac["addr"]
-            mips_label[addr] = "label"+str(label_count)
+            if addr not in mips_label.keys():
+                mips_label[addr] = ["label"+str(label_count)]
+            else:
+                mips_label[addr].append("label"+str(label_count))
             jump_label[ac["pc"]] = "label"+str(label_count)
             label_count += 1
 
     for ac in assemble_code:
         ir = ac["ir"]
         if ac["pc"] in mips_label.keys():
-            mips.append(mips_label[ac["pc"]]+":")
+            for label in mips_label[ac["pc"]]:
+                mips.append(label+":")
         if ir == "add":
             if ac["indexed"] == 0:
                 mips.append("li $14, {}".format(ac["imm"]))
@@ -361,6 +375,8 @@ def hrm2mips():
             mips.append("mtc0 $11,$14")
         elif ir == "nop":
             mips.append("nop")
+        elif ir == "jumpr":
+            mips.append("jr $11")
         elif ir in j_func.keys():
             addr = jump_label[ac["pc"]]
             if ir == "jump":
@@ -378,10 +394,10 @@ def hrm2mips():
 
 
 if __name__ == '__main__':
-    f_in = open("examples/code.txt")
-    f_out1 = open("examples/machine_code_bin.txt", "w")
-    f_out2 = open("examples/machine_code_hex.txt", "w")
-    f_out3 = open("examples/mips_code.txt", "w")
+    f_in = open("../codes/handler.txt")
+    f_out1 = open("../codes/machine_code_bin.txt", "w")
+    f_out2 = open("../codes/machine_code_hex.txt", "w")
+    f_out3 = open("../codes/mips_code.txt", "w")
     lines = f_in.readlines()
     assemble_code = []
     machine_code_bin = []
@@ -397,20 +413,19 @@ if __name__ == '__main__':
 
     parse_instructions()
 
+    print(labels)
+
     for mcb in machine_code_bin:
         machine_code_hex.append(hex(int("0b"+mcb, 2)).rjust(4, "0"))
 
     for mcb in machine_code_bin:
         print(mcb)
-        print(mcb, file=f_out1)
 
     for mch in machine_code_hex:
         print(mch)
-        print(mch, file=f_out2)
 
     for ac in assemble_code:
         print(ac)
     hrm2mips()
     for mip in mips:
         print(mip, end="")
-        print(mip, end="", file=f_out3)
