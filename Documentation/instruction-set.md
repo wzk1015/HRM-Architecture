@@ -243,7 +243,7 @@ The detailed information of instructions are as follow:
 
   **Purpose: ** //todo
 
-  **Description:** Register ← Register + Memory[*address*]
+  **Description:** Register ← Register - Memory[*address*]
 
   **Operation:** //todo
 
@@ -261,7 +261,7 @@ The detailed information of instructions are as follow:
 
   **Purpose: ** //todo
 
-  **Description:** Register ← Register + Memory[Memory[*address*]]
+  **Description:** Register ← Register - Memory[Memory[*address*]]
 
   **Operation:** //todo
 
