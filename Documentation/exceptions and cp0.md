@@ -1,4 +1,4 @@
-#Exceptions and CP0
+# Exceptions and CP0
 
 HRM-CPU supports exception handling by utilizing CP0.  This document explains:
 
