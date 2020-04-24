@@ -6,7 +6,8 @@ module CPU(
 		input clk,
 		input reset,
 		output [15:0] pc,
-		output [15:0] addr
+		output [15:0] addr,
+		output memWE
     );
 
 
