@@ -11,22 +11,22 @@ HRM-CPU supports exception handling by utilizing CP0.  This document explains:
 
 ## Exceptions Supported
 
-| Exccode | Description              | Source Instructions              | Source Module |
-| ------- | ------------------------ | -------------------------------- | ------------- |
-| 0x1     | Algebraic Overflow       | add sub bumpup bumpdown          | ALU           |
-| 0x2     | Empty Memory             | add sub bumpup bumpdown copyfrom | DM            |
-| 0x3     | Empty Register           | add sub copyto mtcause mtepc     | RF            |
-| 0x4     | Unrecgonized Instrcution | *after J-instructions or eret*   | CTRL          |
-| 0x5     | Permission Denied*       | add sub bumpup bumpdown copyfrom | CTRL IM DM    |
-| 0x6     | Inbox Trap               | inbox                            | CTRL          |
-| 0x7     | Outbox Trap              | outbox                           | CTRL          |
+| Exccode | Description              | Source Instructions                     | Source Module |
+| ------- | ------------------------ | --------------------------------------- | ------------- |
+| 0x1     | Algebraic Overflow       | add sub bumpup bumpdown                 | ALU           |
+| 0x2     | Empty Memory             | add sub bumpup bumpdown copyfrom        | DM            |
+| 0x3     | Empty Register           | add sub copyto                          | RF            |
+| 0x4     | Unrecgonized Instrcution | *after J-instructions or eret*          | CTRL          |
+| 0x5     | Permission Denied*       | add sub bumpup bumpdown copyfrom copyto | CTRL IM DM    |
+| 0x6     | Inbox Trap               | inbox                                   | CTRL          |
+| 0x7     | Outbox Trap              | outbox                                  | CTRL          |
 
 *About *Permission Denied*: This can appear when:
 
 * using `mfcause` `mtcause` `mfepc` `mtepc` `eret` `jumpr` in user mode (*EXL*=0)
 * jumping out of  *text* area address in user mode
 * writing *static data* area in user mode (reading *static data* is allowed so user can use constants)
-* reading or writing kernel address or illegal address in user mode
+* reading or writing out of *static data* and *data* area or illegal address in user mode
 
 Note that *Permission Denied* will not appear in kernel mode (In fact, **any** exceptions will be ignored in kernel mode).
 

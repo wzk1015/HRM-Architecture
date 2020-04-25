@@ -3,7 +3,7 @@
   data2: .space 16
 
 
-.addr kernel_data 0x400
+.addr data1 0xff
 .addr data_base 0x0
 
 .macro test(%i,%j)
@@ -14,7 +14,7 @@ outbox
 .end_macro
 
 .text
-copyto kernel_data
+copyto data1
 copyfrom [data1]
 add data2
  #macros

@@ -90,6 +90,8 @@ outbox_trap:
 	jumpz crash	#if reg is empty, carsh
 	copyfrom reg_field
 	copyto [addr_outbox]
+	copyfrom empty_value
+	copyto reg_field
 	jump end
 
 end:

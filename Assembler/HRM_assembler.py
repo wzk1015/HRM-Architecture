@@ -29,7 +29,7 @@ labels = {}
 macros = {}
 addrs = {}
 mips = []
-text_pc = 0x400
+text_pc = 0x300
 
 
 def int_to_bin(integer, bits):
@@ -394,7 +394,7 @@ def hrm2mips():
 
 
 if __name__ == '__main__':
-    f_in = open("../codes/handler.txt")
+    f_in = open("../codes/code.txt")
     f_out1 = open("../codes/machine_code_bin.txt", "w")
     f_out2 = open("../codes/machine_code_hex.txt", "w")
     f_out3 = open("../codes/mips_code.txt", "w")
@@ -420,12 +420,15 @@ if __name__ == '__main__':
 
     for mcb in machine_code_bin:
         print(mcb)
+        print(mcb,file=f_out1)
 
     for mch in machine_code_hex:
         print(mch)
+        print(mch, file=f_out2)
 
     for ac in assemble_code:
         print(ac)
     hrm2mips()
     for mip in mips:
         print(mip, end="")
+        print(mip, file=f_out3)
