@@ -1,6 +1,6 @@
 # HRM-Architecture
 
-// INDEX HERE
+[TOC]
 
 # Introduction
 

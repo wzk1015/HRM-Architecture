@@ -40,7 +40,7 @@
 	copyto exccode
 
 	branch_exccode(one, overflow)	#branch based on exccode
-	branch_exccode(two, empty_mem)
+	branch_exccode(two, empty_mem)
 	branch_exccode(three, empty_reg)
 	branch_exccode(four, unrec_instr)
 	branch_exccode(five, permission_denied)
