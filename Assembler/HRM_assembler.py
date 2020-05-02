@@ -29,7 +29,11 @@ labels = {}
 macros = {}
 addrs = {}
 mips = []
+assemble_code = []
+machine_code_bin = []
+machine_code_hex = []
 text_pc = 0x300
+lines = []
 
 
 def int_to_bin(integer, bits):
@@ -57,7 +61,7 @@ def remove_annotation_and_empty_lines():
     #print(lines)
 
 
-def data_alloc():
+def data_alloc(output=True):
     global lines
     global addrs
     global text_pc
@@ -69,7 +73,8 @@ def data_alloc():
             name = line.split()[1]
             addr = line.split()[2]
             addrs[name] = hex(int(int(addr, 16)/2))
-            print("{}: {}".format(name, hex(int(addr, 16))))
+            if output:
+                print("{}: {}".format(name, hex(int(addr, 16))))
 
     if "kernel_data_base" in addrs.keys():
         start_addr = int(addrs["kernel_data_base"], 16)
@@ -84,7 +89,7 @@ def data_alloc():
         line = lines[i].strip("\n").strip().lower()
         if line == ".data":
             find_end = False
-            for j in range(i+1, len(lines)):
+            for j in range(i + 1, len(lines)):
                 if lines[j].strip().startswith("."):
                     find_end = True
                     break
@@ -94,7 +99,7 @@ def data_alloc():
             break
     if (i, j) == (-1, -1):
         return
-    for k in range(i+1, j):
+    for k in range(i + 1, j):
         line = lines[k].strip("\n").strip().lower()
         name = line.split(":")[0]
         type = line.split()[1]
@@ -102,13 +107,14 @@ def data_alloc():
         if type == ".space":
             addrs[name] = hex(current_start_addr)
             current_start_addr += int(addr)
-            if current_start_addr-start_addr > 0x100:
+            if current_start_addr - start_addr > 0x100:
                 print("alloc memory out of range")
                 raise MemoryError
         else:
             print("wrong .data type: {}".format(type))
             raise TypeError
-        print("{}: {}".format(name, addrs[name]))
+        if output:
+            print("{}: {}".format(name, addrs[name]))
 
     for i in range(len(lines)):
         for name in addrs.keys():
@@ -129,7 +135,7 @@ def macro_parse(lines, i, j):
     start = lines[i].strip("\n").strip().lower()
     macro_name = start.split()[1].split("(")[0]
     parameters = [m.strip() for m in start.split("(")[1].split(")")[0].split(",")]
-    text = [lines[k] for k in range(i+1, j)]
+    text = [lines[k] for k in range(i + 1, j)]
     macros[macro_name] = {"text": text, "parameters": parameters}
 
 
@@ -140,7 +146,7 @@ def macro_define():
         line = lines[i].strip("\n").strip().lower()
         if line.startswith(".macro"):
             find_end = False
-            for j in range(i+1, len(lines)):
+            for j in range(i + 1, len(lines)):
                 if lines[j].strip("\n").strip().lower() == ".end_macro":
                     macro_parse(lines, i, j)
                     find_end = True
@@ -168,7 +174,7 @@ def macro_define():
                         text_replace = text_replace.replace(l, para_dict[l])
                     text_insert.append(text_replace)
                 for text_line in text_insert:
-                    new_lines.insert(k+1, text_line)
+                    new_lines.insert(k + 1, text_line)
                     k += 1
         k += 1
 
@@ -187,11 +193,11 @@ def make_labels():
             continue
         if not find_text:
             continue
-        if i < len(lines)-1:
-            next_line = lines[i+1].strip("\n").strip()
+        if i < len(lines) - 1:
+            next_line = lines[i + 1].strip("\n").strip()
             if is_label(line) and not is_label(next_line):
                 labels[line.strip(":")] = pc
-                prev = i-1
+                prev = i - 1
                 while prev >= 0:
                     previous_line = lines[prev].strip("\n").strip()
                     if not is_label(previous_line):
@@ -203,7 +209,7 @@ def make_labels():
         else:
             if is_label(line):
                 labels[line.strip(":")] = pc
-                prev = i-1
+                prev = i - 1
                 while prev >= 0:
                     previous_line = lines[prev].strip("\n").strip()
                     if not is_label(previous_line):
@@ -261,7 +267,7 @@ def parse_instructions():
                         raise ValueError
                     bin_imm = int_to_bin(imm, 11)
                     assemble_code.append({"ir": ir, "type": "n", "pc": hex(pc), "indexed": indexed, "imm": str(imm)})
-                    machine_code_bin.append(n_func[ir]+indexed+bin_imm)
+                    machine_code_bin.append(n_func[ir] + indexed + bin_imm)
 
                 elif ir in j_func.keys():
                     if op not in labels.keys():
@@ -270,7 +276,7 @@ def parse_instructions():
                     addr = labels[op]
                     bin_addr = int_to_bin(addr, 12)
                     assemble_code.append({"ir": ir, "type": "j", "pc": hex(pc), "addr": hex(addr)})
-                    machine_code_bin.append(j_func[ir]+bin_addr)
+                    machine_code_bin.append(j_func[ir] + bin_addr)
             pc += 0x2
 
 
@@ -286,17 +292,17 @@ def hrm2mips():
         if ir in j_func.keys():
             addr = ac["addr"]
             if addr not in mips_label.keys():
-                mips_label[addr] = ["label"+str(label_count)]
+                mips_label[addr] = ["label" + str(label_count)]
             else:
-                mips_label[addr].append("label"+str(label_count))
-            jump_label[ac["pc"]] = "label"+str(label_count)
+                mips_label[addr].append("label" + str(label_count))
+            jump_label[ac["pc"]] = "label" + str(label_count)
             label_count += 1
 
     for ac in assemble_code:
         ir = ac["ir"]
         if ac["pc"] in mips_label.keys():
             for label in mips_label[ac["pc"]]:
-                mips.append(label+":")
+                mips.append(label + ":")
         if ir == "add":
             if ac["indexed"] == 0:
                 mips.append("li $14, {}".format(ac["imm"]))
@@ -393,42 +399,61 @@ def hrm2mips():
     return mips
 
 
-if __name__ == '__main__':
-    f_in = open("../codes/code.txt")
-    f_out1 = open("../codes/machine_code_bin.txt", "w")
-    f_out2 = open("../codes/machine_code_hex.txt", "w")
-    f_out3 = open("../codes/mips_code.txt", "w")
+def assemble(code_path, machine_code_bin_path, machine_code_hex_path, mips_code_path, output=True):
+    global lines
+    global labels
+    global macros
+    global addrs
+    global mips
+    global assemble_code
+    global machine_code_bin
+    global machine_code_hex
+    global text_pc
+    global lines
+    f_in = open(code_path)
+    f_out1 = open(machine_code_bin_path, "w")
+    f_out2 = open(machine_code_hex_path, "w")
+    f_out3 = open(mips_code_path, "w")
     lines = f_in.readlines()
-    assemble_code = []
-    machine_code_bin = []
-    machine_code_hex = []
 
     remove_annotation_and_empty_lines()
 
     macro_define()
 
-    data_alloc()
+    data_alloc(output)
 
     make_labels()
 
     parse_instructions()
 
-    print(labels)
+    hrm2mips()
+
+    if output:
+        print(labels)
 
     for mcb in machine_code_bin:
-        machine_code_hex.append(hex(int("0b"+mcb, 2)).rjust(4, "0"))
+        machine_code_hex.append(hex(int("0b" + mcb, 2)).rjust(4, "0"))
 
     for mcb in machine_code_bin:
-        print(mcb)
-        print(mcb,file=f_out1)
+        if output:
+            print(mcb)
+        print(mcb, file=f_out1)
 
     for mch in machine_code_hex:
-        print(mch)
+        if output:
+            print(mch)
         print(mch, file=f_out2)
 
     for ac in assemble_code:
-        print(ac)
-    hrm2mips()
+        if output:
+            print(ac)
+
     for mip in mips:
-        print(mip, end="")
+        if output:
+            print(mip, end="")
         print(mip, file=f_out3)
+
+
+if __name__ == '__main__':
+    assemble("../codes/code.txt", "../codes/machine_code_bin.txt",
+             "../codes/machine_code_hex.txt", "/codes/mips_code.txt")

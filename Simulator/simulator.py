@@ -28,12 +28,18 @@ j_func = {
 }
 
 
-def init():
+mem = None
+codes = None
+reg = 0
+start_pc = 0
+
+
+def init(memory_path, machine_code_path):
     global mem
     global codes
-    with open("memory.txt") as f1:
+    with open(memory_path) as f1:
         lines = f1.readlines()
-    with open("../Codes/machine_code_bin.txt") as f2:
+    with open(machine_code_path) as f2:
         lines2 = f2.readlines()
 
     for line in lines:
@@ -44,30 +50,43 @@ def init():
     codes = [line.strip("\n") for line in lines2]
 
 
-def record():
-    print(101*"-", file=log)
-    print(101*"-")
-    print("PC: {}".format(hex(start_pc + 2*i)), file=log)
+def record(do_log, i, log=None):
+    if do_log:
+        print(55*"-", file=log)
+    print(55*"-")
+
+    if do_log:
+        print("PC: {}".format(hex(start_pc + 2*i)), file=log)
     print("PC: {}".format(hex(start_pc + 2*i)))
     try:
-        print("instruction: {}".format(codes[i]), file=log)
+        if do_log:
+            print("instruction: {}".format(codes[i]), file=log)
         print("instruction: {}".format(codes[i]))
     except Exception:
         pass
-    print("reg: {}\nmem:".format(hex(reg)), file=log)
+    if do_log:
+        print("reg: {}\nmem:".format(hex(reg)), file=log)
     print("reg: {}\nmem:".format(hex(reg)))
     for j in range(8):
-        for k in range(16):
-            print("|{}|".format(hex(mem[j*16 + k]).center(4)), end=" ", file=log)
-            print("|{}|".format(hex(mem[j*16 + k]).center(4)), end=" ")
-        print("", file=log)
+        for k in range(8):
+            if do_log:
+                print("|{}|".format(hex(mem[j*8 + k])[2:].rjust(4)), end=" ", file=log)
+            print("|{}|".format(hex(mem[j*8 + k])[2:].rjust(4)), end=" ")
+        if do_log:
+            print("", file=log)
         print("")
 
     time.sleep(1)
 
 
-if __name__ == '__main__':
-    log = open("simulator_log.txt", "w")
+def simulate(memory_path, machine_code_path, log_path=None):
+    global mem
+    global start_pc
+    global reg
+    global codes
+    do_log = (log_path is not None)
+    log = open(log_path, "w") if do_log else None
+
     empty = 0x8000
     reg = empty
     epc = 0x0
@@ -77,9 +96,8 @@ if __name__ == '__main__':
     static_data_limit = 0x300/2
     user_data_base = 0x0/2
     mem = [0x8000 for i in range(32768)]  #each stand for 2 bytes
-    codes = []
 
-    init()
+    init(memory_path, machine_code_path)
 
     if codes[0].startswith(".addr "):
         start_pc = int(codes[0].split()[1], 16)
@@ -88,7 +106,7 @@ if __name__ == '__main__':
 
     i = 0
     while True:
-        record()
+        record(do_log, i, log)
         if i > len(codes) or i < 0:
             #permisson denied
             exccode = 5
@@ -111,7 +129,7 @@ if __name__ == '__main__':
 
                 if instr in ["add", "sub", "copyto"] and reg == empty:
                     #empty register
-                   exccode = 3
+                    exccode = 3
                 if addr >= static_data_limit or addr < user_data_base or \
                         (instr == "copyto" and static_data_base < addr < static_data_limit):
                     #permisson denied
@@ -180,6 +198,8 @@ if __name__ == '__main__':
         if cause>>15 == 0 and exccode != 0:
             #exception encountered
             print("EXCEPTION {}".format(exccode))
+            if do_log:
+                print("EXCEPTION {}".format(exccode))
             cause = exccode + 1<<15
             epc = start_pc + 2*i
             i = int((exception_handler - start_pc)/2)
@@ -190,8 +210,16 @@ if __name__ == '__main__':
         if cause>>14%2 == 1:
             #crash
             print("CRASH!")
+            if do_log:
+                print("CRASH!")
             exit(-1)
 
         if i == len(codes):
             print("END")
+            if do_log:
+                print("END")
             exit(0)
+
+
+if __name__ == '__main__':
+    simulate("code.txt", "../Codes/machine_code_bin.txt", "simulator_log.txt")

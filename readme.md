@@ -78,3 +78,14 @@ Moreover, in the game user's available memory is changeless, so there will be no
 * address of inbox - 0xfffb
 * address of outbox - 0xfffd
 * ...
+
+
+
+## Try this!
+
+You can run `Utils/run.py`  to assemble your code and simulate. Try this command:
+
+``` bash
+python Utils/run.py --in_code Codes/code.txt --in_mem Simulator/memory.txt --out_log Simulator/simulator_log.txt
+```
+
