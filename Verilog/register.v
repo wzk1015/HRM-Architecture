@@ -5,6 +5,7 @@ module register(
 		input clk,
 		input reset,
 		input WE,
+		input holding,
 		output [15:0] reg_data,
 		output empty_reg
     );

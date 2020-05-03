@@ -313,7 +313,7 @@ The detailed information of instructions are as follow:
   | :-----: | :------------------------: |
   | 1 0 1 0 | ADDRESS OF THE INSTRUCTION |
 
-  **Format:** JUMPN *label*
+  **Format:** JUMPZ *label*
 
   **Purpose: ** //todo
 
