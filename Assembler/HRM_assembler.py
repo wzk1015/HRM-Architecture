@@ -456,4 +456,4 @@ def assemble(code_path, machine_code_bin_path, machine_code_hex_path, mips_code_
 
 if __name__ == '__main__':
     assemble("../codes/code.txt", "../codes/machine_code_bin.txt",
-             "../codes/machine_code_hex.txt", "/codes/mips_code.txt")
+             "../codes/machine_code_hex.txt", "../codes/mips_code.txt")

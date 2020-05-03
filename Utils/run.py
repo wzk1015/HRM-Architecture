@@ -1,8 +1,8 @@
 import argparse
-import sys; sys.path.append("../")
+from sys import path; path.append("./")
 
-from HRM.Assembler.HRM_assembler import assemble
-from HRM.Simulator.simulator import simulate
+from Assembler.HRM_assembler import assemble
+from Simulator.simulator import simulate
 
 
 def run():

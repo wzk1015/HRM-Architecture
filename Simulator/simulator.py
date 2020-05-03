@@ -222,4 +222,4 @@ def simulate(memory_path, machine_code_path, log_path=None):
 
 
 if __name__ == '__main__':
-    simulate("code.txt", "../Codes/machine_code_bin.txt", "simulator_log.txt")
+    simulate("../Codes/code.txt", "../Codes/machine_code_bin.txt", "simulator_log.txt")
