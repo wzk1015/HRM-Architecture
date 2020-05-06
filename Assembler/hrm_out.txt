@@ -1,0 +1,262 @@
+.addr zero 0x200
+.addr one 0x202
+.addr two 0x204
+.addr three 0x206
+.addr four 0x208
+.addr five 0x210
+.addr six 0x212
+.addr seven 0x214
+.addr eight 0x216
+.addr nine 0x218
+.addr ten 0x220
+.addr pow2_4 0x222
+.addr pow2_5 0x224
+.addr pow2_6 0x226
+.addr pow2_7 0x228
+.addr pow2_8 0x22a
+.addr pow2_9 0x22c
+.addr pow2_10 0x22e
+.addr pow2_11 0x230
+.addr pow2_12 0x232
+.addr pow2_13 0x234
+.addr pow2_14 0x236
+.addr pow2_15 0x238
+.addr pow2_16 0x23a
+.addr temp 0x23c
+.addr reg0 0x100
+.addr reg1 0x102
+.addr reg2 0x104
+.addr reg3 0x106
+.addr reg4 0x108
+.addr reg5 0x10a
+.addr reg6 0x10c
+.addr reg7 0x10e
+.addr reg8 0x110
+.addr reg9 0x112
+.addr reg10 0x114
+.addr reg11 0x116
+.addr reg12 0x118
+.addr reg13 0x11a
+.addr reg14 0x11c
+.addr reg15 0x11e
+.addr reg16 0x120
+.addr reg17 0x122
+.addr reg18 0x124
+.addr reg19 0x126
+.addr reg20 0x128
+.addr reg21 0x12a
+.addr reg22 0x12c
+.addr reg23 0x12e
+.addr reg24 0x130
+.addr reg25 0x132
+.addr reg26 0x134
+.addr reg27 0x136
+.addr reg28 0x138
+.addr reg29 0x13a
+.addr reg30 0x13c
+.addr reg31 0x13e
+copyfrom zero
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+copyto temp
+copyfrom reg11
+copyto [temp]
+copyfrom zero
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+copyto temp
+copyfrom [temp]
+copyto reg11
+copyfrom zero
+add pow2_3
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom zero
+add pow2_2
+copyto reg2
+copyfrom reg2
+copyto reg11
+copyfrom zero
+add pow2_0
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom zero
+add pow2_1
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom reg1
+copyto reg4
+copyfrom zero
+add pow2_0
+copyto reg2
+copyfrom zero
+add pow2_2
+copyto reg2
+copyfrom reg2
+copyto reg11
+copyfrom zero
+add pow2_1
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom zero
+add pow2_2
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom reg1
+copyto reg4
+copyfrom zero
+add pow2_0
+copyto reg2
+copyfrom zero
+add pow2_2
+copyto reg2
+copyfrom reg2
+copyto reg11
+mfcause
+copyto reg11
+copyfrom reg11
+mtcause
+mfepc
+copyto reg11
+copyfrom reg11
+mtepc
+eret
+copyfrom zero
+add pow2_0
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+copyto temp
+copyfrom [temp]
+copyto reg11
+copyfrom reg11
+sub reg0
+jumpz label1
+copyfrom zero
+add pow2_1
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+copyto temp
+copyfrom reg11
+copyto [temp]
+copyfrom reg11
+jumpn label2
+jump label3
+label3:
+copyfrom zero
+add pow2_2
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg11
+add reg12
+copyto reg11
+copyfrom reg1
+copyto reg4
+copyfrom zero
+add pow2_0
+copyto reg2
+label1:
+label2:
+copyfrom zero
+add pow2_2
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+add pow2_0
+copyto reg11
+copyfrom zero
+add pow2_2
+copyto reg14
+copyfrom reg14
+copyto temp
+copyfrom [temp]
+copyto reg13
+copyfrom reg13
+copyto temp
+copyfrom [temp]
+copyto reg12
+copyfrom reg12
+add pow2_0
+copyto reg11
+copyfrom zero
+add pow2_3
+copyto reg2

@@ -327,12 +327,12 @@ def hrm2mips():
             if ac["indexed"] == 0:
                 mips.append("li $14, {}".format(ac["imm"]))
                 mips.append("lb $12, 0($14)")
-                mips.append("add $11, $12, 1")
+                mips.append("addi $11, $12, 1")
             else:
                 mips.append("li $14, {}".format(ac["imm"]))
                 mips.append("lb $13, 0($14)")
                 mips.append("lb $12, 0($13)")
-                mips.append("add $11, $12, 1")
+                mips.append("addi $11, $12, 1")
         elif ir == "bumpdown":
             if ac["indexed"] == 0:
                 mips.append("li $14, {}".format(ac["imm"]))
