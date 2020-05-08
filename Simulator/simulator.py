@@ -1,30 +1,30 @@
 import time
 
 n_func = {
-    "0001": "add",
-    "0010": "bumpup",
-    "0011": "bumpdown",
-    "0100": "copyfrom",
-    "0101": "copyto",
-    "0110": "sub",
+    "001": "add",
+    "010": "bumpup",
+    "011": "bumpdown",
+    "100": "copyfrom",
+    "101": "copyto",
+    "110": "sub",
 }
 
 s_func = {
-    "1111000000000000": "eret",
-    "1111000000000001": "inbox",
-    "1111000000000010": "outbox",
-    "1111000000000100": "mfcause",
-    "1111000000000101": "mfepc",
-    "1111000000000110": "mtcause",
-    "1111000000000111": "mtepc",
-    "1111000000001000": "jumpr",
+    "0000000000000011": "eret",
+    "0000000000000001": "inbox",
+    "0000000000000010": "outbox",
+    "0000000000000100": "mfcause",
+    "0000000000000101": "mfepc",
+    "0000000000000110": "mtcause",
+    "0000000000000111": "mtepc",
+    "0000000000001000": "jumpr",
     "0000000000000000": "nop"
 }
 
 j_func = {
-    "1000": "jump",
-    "1001": "jumpn",
-    "1010": "jumpz"
+    "0001": "jump",
+    "1110": "jumpn",
+    "1111": "jumpz"
 }
 
 
@@ -43,8 +43,13 @@ def init(memory_path, machine_code_path):
         lines2 = f2.readlines()
 
     for line in lines:
+        if line == "\n":
+            continue
         addr = int(int(line.split()[0], 16)/2)
-        value = int(line.split()[1], 16)
+        if line.split()[1].startswith("0x"):
+            value = int(line.split()[1], 16)
+        else:
+            value = int(line.split()[1])
         mem[addr] = value
 
     codes = [line.strip("\n") for line in lines2]
@@ -92,8 +97,8 @@ def simulate(memory_path, machine_code_path, log_path=None):
     epc = 0x0
     cause = 0x0
     exception_handler = 0x4180
-    static_data_base = 0x200/2
-    static_data_limit = 0x300/2
+    static_data_base = 0x800/2
+    static_data_limit = 0x1000/2
     user_data_base = 0x0/2
     mem = [0x8000 for i in range(32768)]  #each stand for 2 bytes
 
@@ -102,7 +107,7 @@ def simulate(memory_path, machine_code_path, log_path=None):
     if codes[0].startswith(".addr "):
         start_pc = int(codes[0].split()[1], 16)
     else:
-        start_pc = 0x300
+        start_pc = 0x1000
 
     i = 0
     while True:
@@ -114,10 +119,10 @@ def simulate(memory_path, machine_code_path, log_path=None):
             exccode = 0
             code = codes[i]
 
-            if code[:4] in n_func.keys():
-                instr = n_func[code[:4]]
-                indexed = code[4]
-                addr = int(code[5:], 2)
+            if code[:3] in n_func.keys():
+                instr = n_func[code[:3]]
+                indexed = code[3]
+                addr = int(code[4:], 2)
                 if indexed == "0":
                     mm = mem[addr]
                 else:

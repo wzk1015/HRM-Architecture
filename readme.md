@@ -30,9 +30,9 @@ The instruction set consists of 3 types of instructions: instructions related to
 
 * N instructions
 
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 0 0 |    0    | 0 0 0 0 0 0 0 0 0 0 0 |
+  | FUNC  | INDEXED |        OPCODE         |
+  | :---: | :-----: | :-------------------: |
+  | 0 0 0 |    0    | 0 0 0 0 0 0 0 0 0 0 0 |
 
 * J instructions
 
@@ -46,7 +46,7 @@ The detailed information of instructions are listed [here](Documentation/instruc
 
 The memory is not managed through virtual memory or page tables here, the program will access to physical memory directly. 
 
-The size of addressing space is 2^16^ = `65536` bytes. However, due to the design of instruction set, J-instructions can only reach 2^12<<1^=`8192`bytes, and 2^11<<1^ = `4096` bytes for N-instructions. These are enough for user (as all user memory are lower than `0xfff`), and kernel must use kernel mode instruction `jumpr` to jump to the whole addressing space. Kernel may use **indexed** N-instructions to operate the whole space by putting intended address in user's data area. (e.g. `copyfrom intended_addr  copyto 0x0  add [0]`)
+The size of addressing space is 2^16^ = `65536` bytes. However, due to the design of instruction set, N-instruction and J-instructions can only reach 2^12<<1^=`8192`bytes. These are enough for user (as all user memory are lower than `0x1fff`), but kernel must use kernel mode instruction `jumpr` to jump to the whole addressing space. Kernel may use **indexed** N-instructions to operate the whole space by putting intended address in user's data area. (e.g. `copyfrom intended_addr  copyto 0x0  add [0]`)
 
 Moreover, in the game user's available memory is changeless, so there will be no user stack, all user variables will be stored in a fixed area in memory.
 
@@ -60,17 +60,17 @@ Moreover, in the game user's available memory is changeless, so there will be no
 | 0x4180  |              Exception handler              |
 | 0x4000  |              Kernel text base               |
 | 0x3fff  |              Kernel data limit              |
-| 0x1000  |  Kernel data base (lower bound for kernel)  |
-|  0xfff  |      Text limit (upper bound for user)      |
-|  0x300  |                  Text base                  |
-|  0x2ff  |              Static data limit              |
-|  0x200  |            Static data*\** base             |
-|  0x1ff  |                 Data limit                  |
+| 0x2000  |  Kernel data base (lower bound for kernel)  |
+| 0x1fff  |      Text limit (upper bound for user)      |
+| 0x1000  |                  Text base                  |
+|  0xfff  |              Static data limit              |
+|  0x800  |            Static data*\** base             |
+|  0x7ff  |                 Data limit                  |
 |   0x0   |                  Data base                  |
 
 
 
-*\** About *static data*: Due to the one-register architecture and instruction set which does not support immediate number, assembly codes need constant numbers for operations. HRM memory mapping provides **static data area** with similar functions like constant registers. This area contains common constants.  Static data area is inside user's space so it can be reached by both user and kernel. Constants included are listed as follows:
+\* About *static data*: Due to the one-register architecture and instruction set which does not support immediate number, assembly codes need constant numbers for operations. HRM memory mapping provides **static data area** with similar functions like constant registers. This area contains common constants.  Static data area is inside user's space so it can be reached by both user and kernel. Constants included are listed as follows:
 
 * basic integers - 0x0~0x10
 * power of two  - 2^k^ (k=0, 1, ... 16) 
@@ -78,6 +78,17 @@ Moreover, in the game user's available memory is changeless, so there will be no
 * address of inbox - 0xfffb
 * address of outbox - 0xfffd
 * ...
+
+Static data is listed as follows:
+
+| base\ offset   | 0           | 2          | 4           | 6            | 8          | a          | c          | e          |
+| -------------- | ----------- | ---------- | ----------- | ------------ | ---------- | ---------- | ---------- | ---------- |
+| 0x800          | 0           | 1          | 2           | 3            | 4          | 5          | 6          | 7          |
+| 0x810          | 8           | 9          | 10          | pow2_4       | pow2_5     | pow2_6     | pow2_7     | pow2_8     |
+| 0x820          | pow2_9      | pow2_10    | pow2_11     | pow2_12      | pow2_13    | pow2_14    | pow2_15    | pow2_16    |
+| 0x830 —  0x870 | *temp*      | *temp*     | *temp*      | *temp*       | *temp*     | *temp*     | *temp*     | *temp*     |
+| 0x880          | empty value | addr inbox | addr outbox | addr handler | *Reserved* | *Reserved* | *Reserved* | *Reserved* |
+| 0x890 —0xff0   | *Reserved*  | *Reserved* | *Reserved*  | *Reserved*   | *Reserved* | *Reserved* | *Reserved* | *Reserved* |
 
 
 

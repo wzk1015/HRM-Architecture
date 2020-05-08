@@ -4,27 +4,28 @@
 
 ```assembly
 N-instrcutions:
-	0001 add (number/indexed number)
-	0010 bumpup (number/indexed number)
-	0011 bumpdown (number/indexed number)
-	0100 copyfrom (number/indexed number)
-	0101 copyto (number/indexed number)
-	0110 sub (number/indexed number)
+	001 add 	(number/indexed number)
+	010 bumpup 	(number/indexed number)
+	011 bumpdown (number/indexed number)
+	100 copyfrom (number/indexed number)
+	101 copyto 	(number/indexed number)
+	110 sub 	(number/indexed number)
 	
 J-instrcutions:
-	1000 jump
-	1001 jumpn
-	1010 jumpz
+	0001 jump
+	1110 jumpn
+	1111 jumpz
 	
 S-instrcutions:
-	inbox 
-	outbox
-	mfcause
-	mfepc
-	mtcause
-	mtepc
-	nop
-	eret
+	inbox 	0001
+	outbox	0010
+	mfcause	0100
+	mfepc	0101
+	mtcause	0110
+	mtepc	0111
+	nop		0000
+	eret	0011
+	jumpr	1000
 ```
 
 
@@ -35,9 +36,9 @@ The detailed information of instructions are as follow:
 
 * **ADD Number**
 
-  |  FUNC   | INDEXED |      OPCODE       |
-  | :-----: | :-----: | :---------------: |
-  | 0 0 0 1 |    0    | ADDRESS OF NUMBER |
+  | FUNC  | INDEXED |      OPCODE       |
+  | :---: | :-----: | :---------------: |
+  | 0 0 1 |    0    | ADDRESS OF NUMBER |
 
   **Format:** ADD *address*
 
@@ -49,19 +50,18 @@ The detailed information of instructions are as follow:
 
   ```
   true_address <- address << 1
-  addend <- Memory[true_address]
-  Register <- Register + addend
+  Register <- Register + Memory[true_address]
   ```
-
-  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
-
+  
+**Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
   
 
+  
 * **ADD Indexed Number**
 
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | FUNC  | INDEXED |            OPCODE             |
+  | :---: | :-----: | :---------------------------: |
+  | 0 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** ADD [*address*]
 
@@ -75,19 +75,18 @@ The detailed information of instructions are as follow:
   true_address <- address << 1
   true_address <- Memory[true_address]
   true_address <- true_address << 1
-  addend = Memory[true_address]
-  Register <- Register + addend
+  Register <- Register + Memory[true_address]
   ```
-
-  **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
-
+  
+**Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
   
 
+  
 * **BUMPUP Number**
 
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 0 |    0    | ADDRESS OF THE NUMBER |
+  | FUNC  | INDEXED |        OPCODE         |
+  | :---: | :-----: | :-------------------: |
+  | 0 1 0 |    0    | ADDRESS OF THE NUMBER |
 
   **Format:** BUMPUP *address*
 
@@ -99,19 +98,18 @@ The detailed information of instructions are as follow:
 
   ```
   true_address <- address << 1
-  target <- Memory[true_address]
-  Register <- target + 0x0001
+  Register <- Memory[true_address] + 0x0001
   ```
-
-  **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
-
+  
+**Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
   
 
+  
 * **BUMPUP Indexed Number**
 
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 0 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | FUNC  | INDEXED |            OPCODE             |
+  | :---: | :-----: | :---------------------------: |
+  | 0 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** BUMPUP [*address*]
 
@@ -119,7 +117,14 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← Memory[Memory[*address*]] + 0x0001
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  true_address <- Memory[true_address]
+  true_address <- true_address << 1
+  Register <- Memory[true_address] + 0x0001
+  ```
 
   **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
@@ -127,9 +132,9 @@ The detailed information of instructions are as follow:
 
 * **BUMPDOWN Number**
 
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 1 |    0    | ADDRESS OF THE NUMBER |
+  | FUNC  | INDEXED |        OPCODE         |
+  | :---: | :-----: | :-------------------: |
+  | 0 1 1 |    0    | ADDRESS OF THE NUMBER |
 
   **Format:** BUMPDN *address*
 
@@ -137,7 +142,12 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← Memory[*address*] - 0x0001
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  Register <- Memory[true_address] - 0x0001
+  ```
 
   **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
@@ -145,9 +155,9 @@ The detailed information of instructions are as follow:
 
 * **BUMPDOWN Indexed Number**
 
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 0 1 1 |    1    | ADDRESS OF THE NUMBER |
+  | FUNC  | INDEXED |        OPCODE         |
+  | :---: | :-----: | :-------------------: |
+  | 0 1 1 |    1    | ADDRESS OF THE NUMBER |
 
   **Format:** BUMPDN *address*
 
@@ -155,7 +165,14 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← Memory[Memory[*address*]] - 0x0001
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  true_address <- Memory[true_address]
+  true_address <- true_address << 1
+  Register <- Memory[true_address] - 0x0001
+  ```
 
   **Exceptions:** Algebraic Overflow, Empty Memory, Permisson Denied
 
@@ -163,9 +180,9 @@ The detailed information of instructions are as follow:
 
 * **COPYFROM Address**
 
-  |  FUNC   | INDEXED |               OPCODE               |
-  | :-----: | :-----: | :--------------------------------: |
-  | 0 1 0 0 |    0    | ADDRESS OF THE NUMBER TO COPY FROM |
+  | FUNC  | INDEXED |               OPCODE               |
+  | :---: | :-----: | :--------------------------------: |
+  | 1 0 0 |    0    | ADDRESS OF THE NUMBER TO COPY FROM |
 
   **Format:** COPYFROM *address*
 
@@ -173,7 +190,12 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← Memory[*address*]
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  Register <- Memory[true_address]
+  ```
 
   **Exceptions:** Empty Memory, Permisson Denied
 
@@ -181,9 +203,9 @@ The detailed information of instructions are as follow:
 
 * **COPYFROM Indexed Address**
 
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 1 0 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | FUNC  | INDEXED |            OPCODE             |
+  | :---: | :-----: | :---------------------------: |
+  | 1 0 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** COPYFROM [*address*]
 
@@ -191,7 +213,14 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← Memory[Memory[*address*]]
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  true_address <- Memory[true_address]
+  true_address <- true_address << 1
+  Register <- Memory[true_address]
+  ```
 
   **Exceptions:** Empty Memory, Permisson Denied
 
@@ -199,9 +228,9 @@ The detailed information of instructions are as follow:
 
 * **COPYTO Address**
 
-  |  FUNC   | INDEXED |       OPCODE       |
-  | :-----: | :-----: | :----------------: |
-  | 0 1 0 1 |    0    | ADDRESS TO COPY TO |
+  | FUNC  | INDEXED |       OPCODE       |
+  | :---: | :-----: | :----------------: |
+  | 1 0 1 |    0    | ADDRESS TO COPY TO |
 
   **Format:** COPYTO *address*
 
@@ -209,7 +238,12 @@ The detailed information of instructions are as follow:
 
   **Description:** Memory[*address*] ← Register
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  Memory[true_address] <- Register
+  ```
 
   **Exceptions:** Empty Register, Permisson Denied
 
@@ -217,9 +251,9 @@ The detailed information of instructions are as follow:
 
 * **COPYTO Indexed Address**
 
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 1 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | FUNC  | INDEXED |            OPCODE             |
+  | :---: | :-----: | :---------------------------: |
+  | 1 0 1 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** COPYTO [*address*]
 
@@ -227,25 +261,37 @@ The detailed information of instructions are as follow:
 
   **Description:** Memory[Memory[*address*]] ← Register
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+true_address <- address << 1
+  true_address <- Memory[true_address]
+  true_address <- true_address << 1
+  Memory[true_address] <- Register
+  ```
+  
   **Exceptions:** Empty Register, Permisson Denied
-
+  
   
   
 * **SUBTRACT Number**
 
-  |  FUNC   | INDEXED |        OPCODE         |
-  | :-----: | :-----: | :-------------------: |
-  | 0 1 1 0 |    0    | ADDRESS OF THE NUMBER |
+  | FUNC  | INDEXED |        OPCODE         |
+  | :---: | :-----: | :-------------------: |
+  | 1 1 0 |    0    | ADDRESS OF THE NUMBER |
 
   **Format:** SUB *address*
 
-  **Purpose: ** //todo
+  **Purpose: ** To subtract a number to the handheld number. The number is indexed by *address*. If overflow occurs, or if there isn't any number at that address then trap.
 
-  **Description:** Register ← Register - Memory[*address*]
+  **Description:** Register ← Memory[*address*] - Register
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  Register <- Memory[true_address] - Register
+  ```
 
   **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
 
@@ -253,20 +299,27 @@ The detailed information of instructions are as follow:
 
 * **SUBTRACT Indexed Number**
 
-  |  FUNC   | INDEXED |            OPCODE             |
-  | :-----: | :-----: | :---------------------------: |
-  | 0 1 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
+  | FUNC  | INDEXED |            OPCODE             |
+  | :---: | :-----: | :---------------------------: |
+  | 1 1 0 |    1    | ADDRESS OF THE NUMBER'S INDEX |
 
   **Format:** SUB [*address*]
 
-  **Purpose: ** //todo
+  **Purpose: ** To subtract a number to the handheld number. The number is indexed by the value stored at *address*. If overflow occurs, or if no number is found then trap.
 
-  **Description:** Register ← Register - Memory[Memory[*address*]]
+  **Description:** Register ← Memory[Memory[*address*]] - Register
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+true_address <- address << 1
+  true_address <- Memory[true_address]
+  true_address <- true_address << 1
+  Register <- Memory[true_address] - Register
+  ```
+  
   **Exceptions:** Algebraic Overflow, Empty Memory, Empty Register, Permisson Denied
-
+  
   
 
 ## J-instrcutions
@@ -275,15 +328,20 @@ The detailed information of instructions are as follow:
 
   |  FUNC   |            ADDR            |
   | :-----: | :------------------------: |
-  | 1 0 0 0 | ADDRESS OF THE INSTRUCTION |
+  | 0 0 0 1 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMP *label*
 
-  **Purpose: ** //todo
+  **Purpose: ** To jump to instruction at *address* unconditionally.
 
   **Description:** Program Counter ← Address << 1
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  true_address <- address << 1
+  PC <- true_address
+  ```
 
   **Exceptions:** Permisson Denied
 
@@ -293,15 +351,23 @@ The detailed information of instructions are as follow:
 
   |  FUNC   |            ADDR            |
   | :-----: | :------------------------: |
-  | 1 0 0 1 | ADDRESS OF THE INSTRUCTION |
+  | 1 1 1 0 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMPN *label*
 
-  **Purpose: ** //todo
+  **Purpose: ** To jump to instruction at *address* if value of Register is negative.
 
   **Description:** if Register < 0 then JUMP
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  if (Register < 0)
+  	true_address <- address << 1
+  	PC <- true_address
+  else
+  	PC <- PC + 2
+  ```
 
   **Exceptions:** Permisson Denied
 
@@ -311,16 +377,24 @@ The detailed information of instructions are as follow:
 
   |  FUNC   |            ADDR            |
   | :-----: | :------------------------: |
-  | 1 0 1 0 | ADDRESS OF THE INSTRUCTION |
+  | 1 1 1 1 | ADDRESS OF THE INSTRUCTION |
 
   **Format:** JUMPZ *label*
 
-  **Purpose: ** //todo
+  **Purpose: ** To jump to instruction at *address* if value of Register is zero.
 
   **Description:** if Register == 0 then JUMP
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  if (Register == 0)
+  	true_address <- address << 1
+  	PC <- true_address
+  else
+  	PC <- PC + 2
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -331,15 +405,19 @@ The detailed information of instructions are as follow:
 
   |              INBOX              |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 |
 
   **Format:** INBOX
 
   **Purpose: ** To replace the handheld number with the one picked from inbox. If there's nothing left in inbox then trap.
 
-  **Description:** Register ← Inbox Register
+  **Description:** Register ← Memory[Inbox]
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  Register <- Memory[Inbox]
+  ```
 
   **Exceptions:** Inbox Trap
 
@@ -348,16 +426,20 @@ The detailed information of instructions are as follow:
 * **OUTBOX**
 
   |             OUTBOX              |
-| :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 0 |
-  
+  | :-----------------------------: |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 |
+
   **Format:** OUTBOX
 
-  **Purpose: ** //todo
+  **Purpose: ** To put the handheld number into the outbox. If there's nothing left in register then trap.
 
-  **Description:** Outbox Register ← Register
+  **Description:** Memory[Outbox] ← Register
 
-  **Operation:** //todo
+  **Operation:** 
+
+  ```
+  Memory[Outbox] <- Register
+  ```
 
   **Exceptions:** Outbox Trap
 
@@ -367,7 +449,7 @@ The detailed information of instructions are as follow:
 
   |             MFCAUSE             |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 0 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 |
 
   **Format:** MFCAUSE
 
@@ -375,8 +457,12 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← CP0[CAUSE]
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  Register <- CP0[CAUSE]
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -385,7 +471,7 @@ The detailed information of instructions are as follow:
 
   |              MFEPC              |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 0 1 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 |
 
   **Format:** MFEPC
 
@@ -393,8 +479,12 @@ The detailed information of instructions are as follow:
 
   **Description:** Register ← CP0[EPC]
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  Register <- CP0[EPC]
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -403,7 +493,7 @@ The detailed information of instructions are as follow:
 
   |             MTCAUSE             |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 |
 
   **Format:** MTCAUSE
 
@@ -411,8 +501,12 @@ The detailed information of instructions are as follow:
 
   **Description:** CP0[CAUSE] ← Register 
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  CP0[CAUSE] <- Register
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -421,7 +515,7 @@ The detailed information of instructions are as follow:
 
   |              MFEPC              |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 |
 
   **Format:** MTEPC
 
@@ -429,8 +523,12 @@ The detailed information of instructions are as follow:
 
   **Description:** CP0[EPC] ← Register 
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  CP0[EPC] <- Register
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -443,11 +541,11 @@ The detailed information of instructions are as follow:
 
   **Format:** NOP
 
-  **Purpose: ** //todo
+  **Purpose: ** To do nothing.
 
   **Description:** None
 
-  **Operation:** //todo
+  **Operation:** None
 
   **Exceptions:** None
 
@@ -457,16 +555,20 @@ The detailed information of instructions are as follow:
 
   |              ERET               |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 |
 
   **Format:** ERET
 
-  **Purpose: ** //todo
+  **Purpose: ** To return from exception by jump to address in EPC register in coprocessor 0.
 
   **Description:** Program Counter ← CP0[EPC]
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  PC <- CP0[EPC]
+  ```
+  
   **Exceptions:** Permisson Denied
 
 
@@ -475,14 +577,20 @@ The detailed information of instructions are as follow:
 
   |              JUMPR              |
   | :-----------------------------: |
-  | 1 1 1 1 0 0 0 0 0 0 0 0 1 0 0 0 |
+  | 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 |
 
   **Format:** JUMPR
 
-  **Purpose: ** //todo
+  **Purpose: ** To jump to instruction at address in Register.
 
   **Description:**  JUMP to address in Register
 
-  **Operation:** //todo
+  **Operation:** 
 
+  ```
+  PC <- Register
+  ```
+  
   **Exceptions:** Permisson Denied
+  
+  

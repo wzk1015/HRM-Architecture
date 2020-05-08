@@ -1,28 +1,28 @@
 n_func = {
-    "add"     : "0001",
-    "bumpup"  : "0010",
-    "bumpdown": "0011",
-    "copyfrom": "0100",
-    "copyto"  : "0101",
-    "sub"     : "0110",
+    "add"     : "001",
+    "bumpup"  : "010",
+    "bumpdown": "011",
+    "copyfrom": "100",
+    "copyto"  : "101",
+    "sub"     : "110",
 }
 
 s_func = {
-    "eret"   : "1111000000000000",
-    "inbox"  : "1111000000000001",
-    "outbox" : "1111000000000010",
-    "mfcause": "1111000000000100",
-    "mfepc"  : "1111000000000101",
-    "mtcause": "1111000000000110",
-    "mtepc"  : "1111000000000111",
-    "jumpr"  : "1111000000001000",
+    "eret"   : "0000000000000011",
+    "inbox"  : "0000000000000001",
+    "outbox" : "0000000000000010",
+    "mfcause": "0000000000000100",
+    "mfepc"  : "0000000000000101",
+    "mtcause": "0000000000000110",
+    "mtepc"  : "0000000000000111",
+    "jumpr"  : "0000000000001000",
     "nop"    : "0000000000000000"
 }
 
 j_func = {
-    "jump" : "1000",
-    "jumpn": "1001",
-    "jumpz": "1010"
+    "jump" : "0001",
+    "jumpn": "1110",
+    "jumpz": "1111"
 }
 
 labels = {}
@@ -32,7 +32,7 @@ mips = []
 assemble_code = []
 machine_code_bin = []
 machine_code_hex = []
-text_pc = 0x300
+text_pc = 0x1000
 lines = []
 
 
@@ -107,7 +107,7 @@ def data_alloc(output=True):
         if type == ".space":
             addrs[name] = hex(current_start_addr)
             current_start_addr += int(addr)
-            if current_start_addr - start_addr > 0x100:
+            if current_start_addr - start_addr > 0x800:
                 print("alloc memory out of range")
                 raise MemoryError
         else:
@@ -127,7 +127,7 @@ def data_alloc(output=True):
     elif "text_base" in addrs.keys():
         text_pc = int(addrs["text_base"], 16)
     else:
-        text_pc = 0x300
+        text_pc = 0x1000
 
 
 def macro_parse(lines, i, j):
@@ -262,10 +262,10 @@ def parse_instructions():
                         imm = int(op, 16)
                     else:
                         imm = int(op)
-                    if imm >= 0x800:
+                    if imm >= 0x1000:
                         print("number to large: {}".format(op))
                         raise ValueError
-                    bin_imm = int_to_bin(imm, 11)
+                    bin_imm = int_to_bin(imm, 12)
                     assemble_code.append({"ir": ir, "type": "n", "pc": hex(pc), "indexed": indexed, "imm": str(imm)})
                     machine_code_bin.append(n_func[ir] + indexed + bin_imm)
 
@@ -455,5 +455,5 @@ def assemble(code_path, machine_code_bin_path, machine_code_hex_path, mips_code_
 
 
 if __name__ == '__main__':
-    assemble("../codes/code.txt", "../codes/machine_code_bin.txt",
-             "../codes/machine_code_hex.txt", "../codes/mips_code.txt")
+    assemble("../Codes/handler.txt", "../Codes/machine_code_bin.txt",
+             "../Codes/machine_code_hex.txt", "../Codes/mips_code.txt")

@@ -36,9 +36,9 @@ def raise_error(line):
 
 def initial_data():
     global hrm
-    hrm = [".addr zero 0x200", ".addr one 0x202", ".addr two 0x204", ".addr three 0x206",
-           ".addr four 0x208", ".addr five 0x210", ".addr six 0x212", ".addr seven 0x214",
-           ".addr eight 0x216", ".addr nine 0x218", ".addr ten 0x220"]
+    hrm = [".addr zero 0x800", ".addr one 0x802", ".addr two 0x804", ".addr three 0x806",
+           ".addr four 0x808", ".addr five 0x80a", ".addr six 0x80c", ".addr seven 0x80e",
+           ".addr eight 0x810", ".addr nine 0x812", ".addr ten 0x814"]
 
     '''
         ".addr pow2_4 0x222",
@@ -48,12 +48,12 @@ def initial_data():
         ".addr pow2_15 0x248", ".addr pow2_16 0x250",
         '''
 
-    addr = 0x222
+    addr = 0x816
     for i in range(4, 17):
         hrm.append(".addr pow2_{} {}".format(i, hex(addr)))
         addr += 2
     hrm.append(".addr temp {}".format(hex(addr)))
-    addr = 0x100
+    addr += 2
     for i in range(0, 32):
         hrm.append(".addr reg{} {}".format(i, hex(addr)))
         addr += 2

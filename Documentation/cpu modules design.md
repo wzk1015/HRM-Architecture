@@ -198,35 +198,35 @@ elif alu_op == COPYFROM:
 
 ### Interfaces
 
-| Interface                | I/O    | Description                          |
-| ------------------------ | ------ | ------------------------------------ |
-| ir[15:0]                 | input  | instruction code                     |
-| EXL                      | input  | exception level                      |
-| crash                    | input  | crash                                |
-| addr[11:0]               | output | lower 12/11 bits of instruction code |
-| npc_sel[2:0]             | output | npc control signal                   |
-| alu_op[2:0]              | output | alu operation signal                 |
-| mem_write                | output | memory write enable signal           |
-| reg_write                | output | register write enable signal         |
-| eret                     | output | eret instruction                     |
-| mfcause                  | output | mfcause instruction                  |
-| mfepc                    | output | mfepc instruction                    |
-| mtcause                  | output | mtcause instruction                  |
-| mtepc                    | output | mtepc instruction                    |
-| unrecgonized_instrcution | output | unrecgonized instrcution exception   |
-| permission_denied        | output | permission denied exception          |
-| inbox_trap               | output | inbox trap exception                 |
-| outbox_trap              | output | outbox trap exception                |
+| Interface                | I/O    | Description                        |
+| ------------------------ | ------ | ---------------------------------- |
+| ir[15:0]                 | input  | instruction code                   |
+| EXL                      | input  | exception level                    |
+| crash                    | input  | crash                              |
+| addr[11:0]               | output | lower 12 bits of instruction code  |
+| npc_sel[2:0]             | output | npc control signal                 |
+| alu_op[2:0]              | output | alu operation signal               |
+| mem_write                | output | memory write enable signal         |
+| reg_write                | output | register write enable signal       |
+| eret                     | output | eret instruction                   |
+| mfcause                  | output | mfcause instruction                |
+| mfepc                    | output | mfepc instruction                  |
+| mtcause                  | output | mtcause instruction                |
+| mtepc                    | output | mtepc instruction                  |
+| unrecgonized_instrcution | output | unrecgonized instrcution exception |
+| permission_denied        | output | permission denied exception        |
+| inbox_trap               | output | inbox trap exception               |
+| outbox_trap              | output | outbox trap exception              |
 
-**note: **highest bit of addr is meaningless for N-instructions
+
 
 ### Functions
 
-| Function                 | Description                                          |
-| ------------------------ | ---------------------------------------------------- |
-| send out control signals | parse instruction code and decide values of signals  |
-| split address            | split last 11/12 bits of instruction code as address |
-| raise exceptions         | raise four kinds of exceptions if EXL=0              |
+| Function                 | Description                                         |
+| ------------------------ | --------------------------------------------------- |
+| send out control signals | parse instruction code and decide values of signals |
+| split address            | split last 12 bits of instruction code as address   |
+| raise exceptions         | raise four kinds of exceptions if EXL=0             |
 
 
 
