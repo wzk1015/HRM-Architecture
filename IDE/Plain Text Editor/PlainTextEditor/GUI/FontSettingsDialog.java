@@ -51,9 +51,7 @@ public class FontSettingsDialog extends JDialog {
         this.fontFamilyBox = new JComboBox<>(fontFamilies);
         fontFamilyBox.setEditable(false);
         fontFamilyBox.setSelectedItem(this.fontFamily);
-        fontFamilyBox.addActionListener(e -> {
-            preview();
-        });
+        fontFamilyBox.addActionListener(e -> preview());
         panelUpper.add(fontFamilyBox);
 
         JLabel styleLabel = new JLabel("Font Style");
@@ -78,9 +76,7 @@ public class FontSettingsDialog extends JDialog {
                 break;
         }
         fontStyleBox.setSelectedItem(this.fontStyle);
-        fontStyleBox.addActionListener(e -> {
-            preview();
-        });
+        fontStyleBox.addActionListener(e -> preview());
         panelUpper.add(fontStyleBox);
 
         JLabel sizeLabel = new JLabel("Font Size");
@@ -89,9 +85,7 @@ public class FontSettingsDialog extends JDialog {
         this.fontSizeBox = new JComboBox<>(fontSizes);
         fontSizeBox.setEditable(false);
         fontSizeBox.setSelectedItem(fontSize);
-        fontSizeBox.addActionListener(e -> {
-            preview();
-        });
+        fontSizeBox.addActionListener(e -> preview());
         panelUpper.add(fontSizeBox);
 
         JDialog colorChooseDialog = new JDialog();
@@ -142,9 +136,7 @@ public class FontSettingsDialog extends JDialog {
             applySettings();
             destroyDialog();
         });
-        cancelButton.addActionListener(e -> {
-            destroyDialog();
-        });
+        cancelButton.addActionListener(e -> destroyDialog());
         functionalInner.add(Box.createHorizontalGlue());
         functionalInner.add(applyButton);
         functionalInner.add(Box.createHorizontalGlue());

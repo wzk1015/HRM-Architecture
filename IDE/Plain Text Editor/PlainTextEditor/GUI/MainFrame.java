@@ -9,6 +9,8 @@ import java.awt.event.WindowListener;
 
 public class MainFrame extends JFrame {
 
+    private static int surviving = 0;
+
     private final JMenuBar menuBar = new JMenuBar();
 
     private final JMenu fileMenu = new JMenu("File(F)");
@@ -53,13 +55,16 @@ public class MainFrame extends JFrame {
 
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
+    private final String title;
     private boolean edited;
 
     public MainFrame() {
         initMenuBar();
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.menuActionListener.register(this);
         this.setSize(800, 600);
-        this.setTitle("Untitled - Text Editor");
+        this.title = "Untitled - Text Editor";
+        this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.addWindowListener(new WindowListener() {
             @Override
@@ -69,7 +74,25 @@ public class MainFrame extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (edited) {
-                    //todo
+                    int result = FileSaveDialog.querySave(MainFrame.this, null);
+                    switch (result) {
+                        default:
+                        case FileSaveDialog.FSD_CANCEL:
+                            break;
+                        case FileSaveDialog.FSD_NOT:
+                        case FileSaveDialog.FSD_SAVE:
+                            surviving--;
+                            if (surviving <= 0) {
+                                System.exit(0);
+                            }
+                            dispose();
+                    }
+                } else {
+                    surviving--;
+                    if (surviving <= 0) {
+                        System.exit(0);
+                    }
+                    dispose();
                 }
             }
 
@@ -96,6 +119,7 @@ public class MainFrame extends JFrame {
         this.initTextArea();
         this.initMenuActionListener();
         this.edited = false;
+        surviving++;
         this.setVisible(true);
     }
 
@@ -195,6 +219,7 @@ public class MainFrame extends JFrame {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 if (!edited) {
+                    MainFrame.this.setTitle("*" + title);
                     edited = true;
                 }
             }
@@ -202,6 +227,7 @@ public class MainFrame extends JFrame {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 if (!edited) {
+                    MainFrame.this.setTitle("*" + title);
                     edited = true;
                 }
             }
@@ -209,6 +235,7 @@ public class MainFrame extends JFrame {
             @Override
             public void changedUpdate(DocumentEvent e) {
                 if (!edited) {
+                    MainFrame.this.setTitle("*" + title);
                     edited = true;
                 }
             }

@@ -24,14 +24,20 @@ public class MenuActionListener implements ActionListener {
                 textArea.setLineWrap(checked);
                 textArea.setWrapStyleWord(checked);
                 break;
-            case "New Window":
-                new Thread(MainFrame::new).start();
-                break;
             case "Exit":
                 mainFrame.dispose();
                 break;
             case "Font":
                 new FontSettingsDialog(textArea.getFont(), textArea.getForeground(), mainFrame);
+                break;
+            case "New":
+                break;
+            case "New Window":
+                new Thread(MainFrame::new).start();
+                break;
+            case "Save":
+                break;
+            case "Save as":
                 break;
             default:
                 break;
