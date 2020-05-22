@@ -35,6 +35,21 @@ public class MenuActionListener implements ActionListener {
             case "New Window":
                 new Thread(MainFrame::new).start();
                 break;
+            case "Open":
+                if (mainFrame.getUnsavedStatus()) {
+                    int result = FileSaveDialog.querySave(mainFrame, null);
+                    switch (result) {
+                        default:
+                        case FileSaveDialog.FSD_CANCEL:
+                            break;
+                        case FileSaveDialog.FSD_NOT:
+                        case FileSaveDialog.FSD_SAVE:
+                            mainFrame.openFile();
+                    }
+                } else {
+                    mainFrame.openFile();
+                }
+                break;
             case "Save":
                 break;
             case "Save as":

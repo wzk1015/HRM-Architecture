@@ -19,6 +19,7 @@ public class LayoutFactory {
             while (scanner.hasNextLine()) {
                 sb.append(scanner.nextLine()).append("\n");
             }
+            input.close();
             scanner.close();
             pane = new JEditorPane("text/html", sb.toString());
             pane.setEditable(false);

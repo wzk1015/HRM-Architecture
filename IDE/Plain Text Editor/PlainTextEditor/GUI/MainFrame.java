@@ -6,6 +6,9 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.*;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainFrame extends JFrame {
 
@@ -55,16 +58,19 @@ public class MainFrame extends JFrame {
 
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
-    private final String title;
-    private boolean edited;
+    private final AtomicBoolean unsaved;
+
+    private String title;
+    private String filepath;
 
     public MainFrame() {
         initMenuBar();
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.menuActionListener.register(this);
         this.setSize(800, 600);
-        this.title = "Untitled - Text Editor";
-        this.setTitle(title);
+        this.title = "Untitled";
+        this.filepath = null;
+        this.setTitle(title + " - Text Editor");
         this.setLocationRelativeTo(null);
         this.addWindowListener(new WindowListener() {
             @Override
@@ -73,8 +79,8 @@ public class MainFrame extends JFrame {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                if (edited) {
-                    int result = FileSaveDialog.querySave(MainFrame.this, null);
+                if (unsaved.get()) {
+                    int result = FileSaveDialog.querySave(MainFrame.this, filepath);
                     switch (result) {
                         default:
                         case FileSaveDialog.FSD_CANCEL:
@@ -118,13 +124,17 @@ public class MainFrame extends JFrame {
         });
         this.initTextArea();
         this.initMenuActionListener();
-        this.edited = false;
+        this.unsaved = new AtomicBoolean(false);
         surviving++;
         this.setVisible(true);
     }
 
     public JTextArea getTextArea() {
         return this.textArea;
+    }
+
+    public boolean getUnsavedStatus() {
+        return unsaved.get();
     }
 
     private void initMenuBar() {
@@ -218,27 +228,57 @@ public class MainFrame extends JFrame {
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (!edited) {
-                    MainFrame.this.setTitle("*" + title);
-                    edited = true;
+                if (!unsaved.get()) {
+                    MainFrame.this.setTitle("*" + title + " - Text Editor");
+                    unsaved.set(true);
                 }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (!edited) {
-                    MainFrame.this.setTitle("*" + title);
-                    edited = true;
+                if (!unsaved.get()) {
+                    MainFrame.this.setTitle("*" + title + " - Text Editor");
+                    unsaved.set(true);
                 }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                if (!edited) {
-                    MainFrame.this.setTitle("*" + title);
-                    edited = true;
+                if (!unsaved.get()) {
+                    MainFrame.this.setTitle("*" + title + " - Text Editor");
+                    unsaved.set(true);
                 }
             }
         });
+    }
+
+    public void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File readFile = fileChooser.getSelectedFile();
+            if (readFile.exists()) {
+                try {
+                    InputStream input = new FileInputStream(readFile);
+                    Scanner scanner = new Scanner(input);
+                    StringBuilder sb = new StringBuilder();
+                    if (scanner.hasNextLine()) {
+                        sb.append(scanner.nextLine());
+                    }
+                    while (scanner.hasNextLine()) {
+                        sb.append("\n").append(scanner.nextLine());
+                    }
+                    input.close();
+                    scanner.close();
+                    textArea.setText(sb.toString());
+                    this.filepath = readFile.getAbsolutePath();
+                    this.title = readFile.getName();
+                    this.setTitle(title + " - Text Editor");
+                    this.unsaved.set(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
