@@ -25,12 +25,13 @@ public class MenuActionListener implements ActionListener {
                 textArea.setWrapStyleWord(checked);
                 break;
             case "Exit":
-                mainFrame.dispose();
+                mainFrame.onWindowClosing();
                 break;
             case "Font":
                 new FontSettingsDialog(textArea.getFont(), textArea.getForeground(), mainFrame);
                 break;
             case "New":
+                mainFrame.newFile();
                 break;
             case "New Window":
                 new Thread(MainFrame::new).start();
@@ -51,8 +52,10 @@ public class MenuActionListener implements ActionListener {
                 }
                 break;
             case "Save":
+                mainFrame.saveFile();
                 break;
             case "Save as":
+                mainFrame.saveFileAs();
                 break;
             default:
                 break;

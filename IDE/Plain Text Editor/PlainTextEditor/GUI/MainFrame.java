@@ -4,15 +4,15 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.io.*;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainFrame extends JFrame {
 
-    private static int surviving = 0;
+    private static final AtomicInteger surviving = new AtomicInteger(0);
 
     private final JMenuBar menuBar = new JMenuBar();
 
@@ -68,8 +68,8 @@ public class MainFrame extends JFrame {
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.menuActionListener.register(this);
         this.setSize(800, 600);
-        this.title = "Untitled";
         this.filepath = null;
+        this.title = "Untitled";
         this.setTitle(title + " - Text Editor");
         this.setLocationRelativeTo(null);
         this.addWindowListener(new WindowListener() {
@@ -79,27 +79,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                if (unsaved.get()) {
-                    int result = FileSaveDialog.querySave(MainFrame.this, filepath);
-                    switch (result) {
-                        default:
-                        case FileSaveDialog.FSD_CANCEL:
-                            break;
-                        case FileSaveDialog.FSD_NOT:
-                        case FileSaveDialog.FSD_SAVE:
-                            surviving--;
-                            if (surviving <= 0) {
-                                System.exit(0);
-                            }
-                            dispose();
-                    }
-                } else {
-                    surviving--;
-                    if (surviving <= 0) {
-                        System.exit(0);
-                    }
-                    dispose();
-                }
+                onWindowClosing();
             }
 
             @Override
@@ -125,7 +105,7 @@ public class MainFrame extends JFrame {
         this.initTextArea();
         this.initMenuActionListener();
         this.unsaved = new AtomicBoolean(false);
-        surviving++;
+        surviving.addAndGet(1);
         this.setVisible(true);
     }
 
@@ -145,6 +125,15 @@ public class MainFrame extends JFrame {
         fileMenu.add(saveAsMenuItem);
         fileMenu.addSeparator();
         fileMenu.add(exitMenuItem);
+
+        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+        windowMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,
+                InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+        exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
         fileMenu.setMnemonic('F');
 
         editMenu.add(undoMenuItem);
@@ -160,6 +149,18 @@ public class MainFrame extends JFrame {
         editMenu.addSeparator();
         editMenu.add(selectAllMenuItem);
         editMenu.add(timeMenuItem);
+
+        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
+        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
+        delMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        findMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        findNextMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+        findLastMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK));
+        replaceMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
+        selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
+        timeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
         editMenu.setMnemonic('E');
 
         autoWrapMenuItem.setSelected(true);
@@ -252,6 +253,55 @@ public class MainFrame extends JFrame {
         });
     }
 
+    public void onWindowClosing() {
+        if (unsaved.get()) {
+            int result = FileSaveDialog.querySave(MainFrame.this, filepath);
+            switch (result) {
+                default:
+                case FileSaveDialog.FSD_CANCEL:
+                    break;
+                case FileSaveDialog.FSD_NOT:
+                case FileSaveDialog.FSD_SAVE:
+                    surviving.addAndGet(-1);
+                    if (surviving.get() <= 0) {
+                        System.exit(0);
+                    }
+                    dispose();
+            }
+        } else {
+            surviving.addAndGet(-1);
+            if (surviving.get() <= 0) {
+                System.exit(0);
+            }
+            dispose();
+        }
+    }
+
+    public void newFile() {
+        if (unsaved.get()) {
+            int result = FileSaveDialog.querySave(MainFrame.this, filepath);
+            switch (result) {
+                default:
+                case FileSaveDialog.FSD_CANCEL:
+                    break;
+                case FileSaveDialog.FSD_NOT:
+                case FileSaveDialog.FSD_SAVE:
+                    this.unsaved.set(false);
+                    System.out.println(unsaved.get());
+                    this.textArea.setText("");
+                    this.title = "Untitled";
+                    this.setTitle(title + " - Text Editor");
+                    // out of unknown reason, after this the title of the windows
+                    // fails to react according to unsaved status
+                    // fix it later
+            }
+        } else {
+            this.textArea.setText("");
+            this.title = "Untitled";
+            this.setTitle(title + " - Text Editor");
+        }
+    }
+
     public void openFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -279,6 +329,20 @@ public class MainFrame extends JFrame {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public void saveFile() {
+        if (FileSaveAction.fileSave(this, this, this.filepath)) {
+            this.unsaved.set(false);
+            this.setTitle(title + " - Text Editor");
+        }
+    }
+
+    public void saveFileAs() {
+        if (FileSaveAction.fileSave(this, this, null)) {
+            this.unsaved.set(false);
+            this.setTitle(title + " - Text Editor");
         }
     }
 }

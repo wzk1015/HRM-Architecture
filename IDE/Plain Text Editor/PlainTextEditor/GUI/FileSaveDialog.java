@@ -2,8 +2,6 @@ package PlainTextEditor.GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileSaveDialog extends JDialog {
@@ -52,72 +50,7 @@ public class FileSaveDialog extends JDialog {
         JButton cancelButton = new JButton("Cancel");
         saveButton.addActionListener(e -> {
             ret.set(FSD_SAVE);
-            if (path == null) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                if (fileChooser.showSaveDialog(dialog) == JFileChooser.APPROVE_OPTION) {
-                    File saveFile = fileChooser.getSelectedFile();
-                    if (saveFile.exists()) {
-                        JDialog fileExistsDialog = new JDialog();
-                        fileExistsDialog.setTitle("Confirm save as");
-                        fileExistsDialog.setResizable(false);
-                        fileExistsDialog.setSize(300, 100);
-                        fileExistsDialog.setLocationRelativeTo(null);
-                        fileExistsDialog.setLayout(new GridLayout(2, 1));
-                        JLabel fileExistsMessage = new JLabel("File exists, overwrite it?");
-                        fileExistsMessage.setHorizontalAlignment(JLabel.CENTER);
-                        fileExistsMessage.setVerticalAlignment(JLabel.CENTER);
-                        fileExistsDialog.add(fileExistsMessage);
-                        JButton saveBtn = new JButton("Sure(S)");
-                        JButton notBtn = new JButton("Not(N)");
-                        saveBtn.addActionListener(ee -> {
-                            try {
-                                OutputStreamWriter writer = new OutputStreamWriter(
-                                        new FileOutputStream(saveFile),
-                                        StandardCharsets.UTF_8
-                                );
-                                writer.append(frame.getTextArea().getText());
-                                writer.close();
-                            } catch (IOException fileNotFoundException) {
-                                fileNotFoundException.printStackTrace();
-                            }
-                            fileExistsDialog.dispose();
-                            dialog.dispose();
-                        });
-                        notBtn.addActionListener(ee -> fileExistsDialog.dispose());
-                        JPanel lowerPnl = new JPanel();
-                        lowerPnl.add(saveBtn);
-                        lowerPnl.add(notBtn);
-                        fileExistsDialog.add(lowerPnl);
-                        fileExistsDialog.setModal(true);
-                        fileExistsDialog.setVisible(true);
-                    } else {
-                        try {
-                            OutputStreamWriter writer = new OutputStreamWriter(
-                                    new FileOutputStream(saveFile),
-                                    StandardCharsets.UTF_8
-                            );
-                            writer.append(frame.getTextArea().getText());
-                            writer.close();
-                        } catch (IOException fileNotFoundException) {
-                            fileNotFoundException.printStackTrace();
-                        }
-                        dialog.dispose();
-                    }
-                }
-            } else {
-                try {
-                    OutputStreamWriter writer = new OutputStreamWriter(
-                            new FileOutputStream(path),
-                            StandardCharsets.UTF_8
-                    );
-                    writer.append(frame.getTextArea().getText());
-                    writer.close();
-                } catch (IOException fileNotFoundException) {
-                    fileNotFoundException.printStackTrace();
-                }
-                dialog.dispose();
-            }
+            FileSaveAction.fileSave(dialog, frame, path);
         });
         notButton.addActionListener(e -> {
             ret.set(FSD_NOT);
