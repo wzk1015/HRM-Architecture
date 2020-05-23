@@ -57,6 +57,15 @@ public class MenuActionListener implements ActionListener {
             case "Save as":
                 mainFrame.saveFileAs();
                 break;
+            case "Zoom in":
+                mainFrame.zoomIn();
+                break;
+            case "Zoom out":
+                mainFrame.zoomOut();
+                break;
+            case "Reset":
+                mainFrame.zoomReset();
+                break;
             default:
                 break;
         }

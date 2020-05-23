@@ -64,11 +64,13 @@ public class MainFrame extends JFrame {
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
     private AtomicBoolean unsaved;
+    private AtomicBoolean ctrlDown;
 
     private String title;
     private String filepath;
     private String encoding;
     private int zoomRate;
+    private int fontSize;
 
     public MainFrame() {
         this.initStatus();
@@ -91,6 +93,7 @@ public class MainFrame extends JFrame {
     private void initStatus() {
         surviving.addAndGet(1);
         this.unsaved = new AtomicBoolean(false);
+        this.ctrlDown = new AtomicBoolean(false);
         this.title = "Untitled";
         this.filepath = null;
         this.encoding = "UTF-8";
@@ -131,6 +134,26 @@ public class MainFrame extends JFrame {
 
             @Override
             public void windowDeactivated(WindowEvent e) {
+            }
+        });
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
+                    ctrlDown.set(true);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
+                    ctrlDown.set(false);
+                }
             }
         });
     }
@@ -185,6 +208,7 @@ public class MainFrame extends JFrame {
 
         formatMenu.add(autoWrapMenuItem);
         formatMenu.add(fontMenuItem);
+
         formatMenu.setMnemonic('O');
 
         viewMenu.add(zoomSubmenu);
@@ -192,6 +216,10 @@ public class MainFrame extends JFrame {
         zoomSubmenu.add(zoomInMenuItem);
         zoomSubmenu.add(zoomOutMenuItem);
         zoomSubmenu.add(zoomResetMenuItem);
+
+        zoomInMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.CTRL_DOWN_MASK));
+        zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK));
+        zoomResetMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_DOWN_MASK));
         viewMenu.setMnemonic('V');
 
         helpMenu.add(aboutMenuItem);
@@ -230,6 +258,9 @@ public class MainFrame extends JFrame {
         fontMenuItem.addActionListener(menuActionListener);
 
         zoomSubmenu.addActionListener(menuActionListener);
+        zoomInMenuItem.addActionListener(menuActionListener);
+        zoomOutMenuItem.addActionListener(menuActionListener);
+        zoomResetMenuItem.addActionListener(menuActionListener);
         statusMenuItem.addActionListener(menuActionListener);
 
         aboutMenuItem.addActionListener(menuActionListener);
@@ -241,7 +272,9 @@ public class MainFrame extends JFrame {
         textAreaContainer.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.add(textAreaContainer);
         try {
-            this.textArea.setFont(new Font("微软雅黑", Font.PLAIN, 18));
+            this.fontSize = 18;
+            int displaySize = (int) ((double) fontSize * (double) zoomRate / (double) 100);
+            this.textArea.setFont(new Font("微软雅黑", Font.PLAIN, displaySize));
             this.textArea.setForeground(Color.BLACK);
         } catch (Exception ignored) {
         }
@@ -274,6 +307,15 @@ public class MainFrame extends JFrame {
             }
         });
         textArea.getCaret().addChangeListener(e -> caretPositionLabel.setText(getCaretPositionString()));
+        textArea.addMouseWheelListener(e -> {
+            if (ctrlDown.get() && e.getWheelRotation() > 0) {
+                zoomIn();
+            } else if (ctrlDown.get() && e.getWheelRotation() < 0) {
+                zoomOut();
+            }
+        });
+        //todo
+        // can't react correctly, fix it later
     }
 
     private void initStatusBar() {
@@ -294,11 +336,29 @@ public class MainFrame extends JFrame {
     private String getCaretPositionString() {
         int caretPosition = textArea.getCaretPosition();
         String text = textArea.getText();
-        String substring = text.substring(0, caretPosition);
-        String[] lines = substring.split("\n");
-        int row = lines.length;
-        int col = lines[lines.length - 1].length() + 1;
+        int row = 1;
+        int lastLine = 0;
+        for (int i = 0; i < caretPosition; i++) {
+            if (text.charAt(i) == '\n') {
+                row++;
+                lastLine = i;
+            }
+        }
+        int col = caretPosition - lastLine + 1;
         return "Ln:" + row + "  " + "Col:" + col;
+    }
+
+    public int getFontSize() {
+        return this.fontSize;
+    }
+
+    public void setFontSize(int size) {
+        this.fontSize = size;
+    }
+
+    public void setTextAreaFont(Font font) {
+        int displaySize = (int) ((double) fontSize * (double) zoomRate / (double) 100);
+        this.textArea.setFont(new Font(font.getName(), font.getStyle(), displaySize));
     }
 
     public void onWindowClosing() {
@@ -338,6 +398,7 @@ public class MainFrame extends JFrame {
                     this.textArea.setText("");
                     this.title = "Untitled";
                     this.setTitle(title + " - Text Editor");
+                    //todo
                     // out of unknown reason, after this the title of the windows
                     // fails to react according to unsaved status
                     // fix it later
@@ -391,5 +452,32 @@ public class MainFrame extends JFrame {
             this.unsaved.set(false);
             this.setTitle(title + " - Text Editor");
         }
+    }
+
+    public void zoomIn() {
+        if (zoomRate <= 190) {
+            this.zoomRate += 10;
+            this.zoomRateLabel.setText(zoomRate + "%");
+            int displaySize = (int) ((double) fontSize * (double) zoomRate / (double) 100);
+            Font font = textArea.getFont();
+            this.textArea.setFont(new Font(font.getName(), font.getStyle(), displaySize));
+        }
+    }
+
+    public void zoomOut() {
+        if (zoomRate >= 20) {
+            this.zoomRate -= 10;
+            this.zoomRateLabel.setText(zoomRate + "%");
+            int displaySize = (int) ((double) fontSize * (double) zoomRate / (double) 100);
+            Font font = textArea.getFont();
+            this.textArea.setFont(new Font(font.getName(), font.getStyle(), displaySize));
+        }
+    }
+
+    public void zoomReset() {
+        this.zoomRate = 100;
+        Font font = textArea.getFont();
+        this.textArea.setFont(new Font(font.getName(), font.getStyle(), fontSize));
+        this.zoomRateLabel.setText(zoomRate + "%");
     }
 }

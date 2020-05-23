@@ -28,7 +28,7 @@ public class FontSettingsDialog extends JDialog {
     public FontSettingsDialog(Font font, Color color, MainFrame frame) {
         this.font = font;
         this.fontFamily = font.getFontName();
-        this.fontSize = font.getSize();
+        this.fontSize = frame.getFontSize();
         this.fontStyle = font.getStyle();
         this.fontColor = color;
         this.mainFrame = frame;
@@ -191,7 +191,8 @@ public class FontSettingsDialog extends JDialog {
 
     private void applySettings() {
         JTextArea textArea = mainFrame.getTextArea();
-        textArea.setFont(font);
+        mainFrame.setFontSize(fontSize);
+        mainFrame.setTextAreaFont(font);
         textArea.setForeground(fontColor);
     }
 
