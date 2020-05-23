@@ -48,28 +48,59 @@ public class MainFrame extends JFrame {
     private final JMenuItem fontMenuItem = new JMenuItem("Font");
 
     // view menu items
-    private final JMenuItem zoomMenuItem = new JMenuItem("Zoom");
+    private final JMenu zoomSubmenu = new JMenu("Zoom");
+    private final JMenuItem zoomInMenuItem = new JMenuItem("Zoom in");
+    private final JMenuItem zoomOutMenuItem = new JMenuItem("Zoom out");
+    private final JMenuItem zoomResetMenuItem = new JMenuItem("Reset");
     private final JMenuItem statusMenuItem = new JMenuItem("Show Status Bar");
 
     // help menu items
     private final JMenuItem aboutMenuItem = new JMenuItem("About");
 
     private JTextArea textArea;
+    private JLabel zoomRateLabel;
+    private JLabel caretPositionLabel;
 
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
-    private final AtomicBoolean unsaved;
+    private AtomicBoolean unsaved;
 
     private String title;
     private String filepath;
+    private String encoding;
+    private int zoomRate;
 
     public MainFrame() {
-        initMenuBar();
-        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        this.menuActionListener.register(this);
-        this.setSize(800, 600);
-        this.filepath = null;
+        this.initStatus();
+        this.initUI();
+        this.initMenuBar();
+        this.initMenuActionListener();
+        this.initTextArea();
+        this.initStatusBar();
+        this.setVisible(true);
+    }
+
+    public JTextArea getTextArea() {
+        return this.textArea;
+    }
+
+    public boolean getUnsavedStatus() {
+        return unsaved.get();
+    }
+
+    private void initStatus() {
+        surviving.addAndGet(1);
+        this.unsaved = new AtomicBoolean(false);
         this.title = "Untitled";
+        this.filepath = null;
+        this.encoding = "UTF-8";
+        this.zoomRate = 100;
+    }
+
+    private void initUI() {
+        this.setLayout(new BorderLayout());
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.setSize(800, 600);
         this.setTitle(title + " - Text Editor");
         this.setLocationRelativeTo(null);
         this.addWindowListener(new WindowListener() {
@@ -102,19 +133,6 @@ public class MainFrame extends JFrame {
             public void windowDeactivated(WindowEvent e) {
             }
         });
-        this.initTextArea();
-        this.initMenuActionListener();
-        this.unsaved = new AtomicBoolean(false);
-        surviving.addAndGet(1);
-        this.setVisible(true);
-    }
-
-    public JTextArea getTextArea() {
-        return this.textArea;
-    }
-
-    public boolean getUnsavedStatus() {
-        return unsaved.get();
     }
 
     private void initMenuBar() {
@@ -169,8 +187,11 @@ public class MainFrame extends JFrame {
         formatMenu.add(fontMenuItem);
         formatMenu.setMnemonic('O');
 
-        viewMenu.add(zoomMenuItem);
+        viewMenu.add(zoomSubmenu);
         viewMenu.add(statusMenuItem);
+        zoomSubmenu.add(zoomInMenuItem);
+        zoomSubmenu.add(zoomOutMenuItem);
+        zoomSubmenu.add(zoomResetMenuItem);
         viewMenu.setMnemonic('V');
 
         helpMenu.add(aboutMenuItem);
@@ -185,6 +206,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initMenuActionListener() {
+        this.menuActionListener.register(this);
         newMenuItem.addActionListener(menuActionListener);
         windowMenuItem.addActionListener(menuActionListener);
         openMenuItem.addActionListener(menuActionListener);
@@ -207,7 +229,7 @@ public class MainFrame extends JFrame {
         autoWrapMenuItem.addActionListener(menuActionListener);
         fontMenuItem.addActionListener(menuActionListener);
 
-        zoomMenuItem.addActionListener(menuActionListener);
+        zoomSubmenu.addActionListener(menuActionListener);
         statusMenuItem.addActionListener(menuActionListener);
 
         aboutMenuItem.addActionListener(menuActionListener);
@@ -251,6 +273,32 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+        textArea.getCaret().addChangeListener(e -> caretPositionLabel.setText(getCaretPositionString()));
+    }
+
+    private void initStatusBar() {
+        JPanel statusBar = new JPanel();
+        statusBar.setPreferredSize(new Dimension(0, 20));
+        statusBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        JLabel encodingLabel = new JLabel(this.encoding);
+        zoomRateLabel = new JLabel(zoomRate + "%");
+        caretPositionLabel = new JLabel(getCaretPositionString());
+        statusBar.add(caretPositionLabel);
+        statusBar.add(new JLabel("  "));
+        statusBar.add(zoomRateLabel);
+        statusBar.add(new JLabel("  "));
+        statusBar.add(encodingLabel);
+        this.add(statusBar, BorderLayout.SOUTH);
+    }
+
+    private String getCaretPositionString() {
+        int caretPosition = textArea.getCaretPosition();
+        String text = textArea.getText();
+        String substring = text.substring(0, caretPosition);
+        String[] lines = substring.split("\n");
+        int row = lines.length;
+        int col = lines[lines.length - 1].length() + 1;
+        return "Ln:" + row + "  " + "Col:" + col;
     }
 
     public void onWindowClosing() {
@@ -287,7 +335,6 @@ public class MainFrame extends JFrame {
                 case FileSaveDialog.FSD_NOT:
                 case FileSaveDialog.FSD_SAVE:
                     this.unsaved.set(false);
-                    System.out.println(unsaved.get());
                     this.textArea.setText("");
                     this.title = "Untitled";
                     this.setTitle(title + " - Text Editor");
