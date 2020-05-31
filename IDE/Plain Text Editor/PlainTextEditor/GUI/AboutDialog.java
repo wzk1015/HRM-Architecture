@@ -1,4 +1,4 @@
-package PlainTextEditor.GUI;
+package PlainTextEditor.gui;
 
 import PlainTextEditor.Globals;
 

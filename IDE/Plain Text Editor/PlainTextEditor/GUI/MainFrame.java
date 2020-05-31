@@ -1,4 +1,6 @@
-package PlainTextEditor.GUI;
+package PlainTextEditor.gui;
+
+import PlainTextEditor.util.ClipboardManager;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -76,6 +78,7 @@ public class MainFrame extends JFrame {
         this.initStatus();
         this.initUI();
         this.initMenuBar();
+        this.initMenuAvailability();
         this.initMenuActionListener();
         this.initTextArea();
         this.initStatusBar();
@@ -134,26 +137,6 @@ public class MainFrame extends JFrame {
 
             @Override
             public void windowDeactivated(WindowEvent e) {
-            }
-        });
-        this.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
-                    ctrlDown.set(true);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
-                    ctrlDown.set(false);
-                }
             }
         });
     }
@@ -308,14 +291,32 @@ public class MainFrame extends JFrame {
         });
         textArea.getCaret().addChangeListener(e -> caretPositionLabel.setText(getCaretPositionString()));
         textArea.addMouseWheelListener(e -> {
-            if (ctrlDown.get() && e.getWheelRotation() > 0) {
+            if (ctrlDown.get() && e.getWheelRotation() < 0) {
                 zoomIn();
-            } else if (ctrlDown.get() && e.getWheelRotation() < 0) {
+            } else if (ctrlDown.get() && e.getWheelRotation() > 0) {
                 zoomOut();
             }
         });
-        //todo
-        // can't react correctly, fix it later
+        textArea.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
+                    ctrlDown.set(true);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
+                ctrlDown.set(false);
+                //}
+            }
+        });
     }
 
     private void initStatusBar() {
@@ -331,6 +332,19 @@ public class MainFrame extends JFrame {
         statusBar.add(new JLabel("  "));
         statusBar.add(encodingLabel);
         this.add(statusBar, BorderLayout.SOUTH);
+    }
+
+    private void initMenuAvailability() {
+        undoMenuItem.setEnabled(false);
+        cutMenuItem.setEnabled(false);
+        copyMenuItem.setEnabled(false);
+        if (ClipboardManager.isEmpty()) {
+            pasteMenuItem.setEnabled(false);
+        }
+        delMenuItem.setEnabled(false);
+        findMenuItem.setEnabled(false);
+        findNextMenuItem.setEnabled(false);
+        findLastMenuItem.setEnabled(false);
     }
 
     private String getCaretPositionString() {

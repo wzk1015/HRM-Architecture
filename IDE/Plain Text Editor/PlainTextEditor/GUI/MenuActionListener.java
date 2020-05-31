@@ -1,8 +1,12 @@
-package PlainTextEditor.GUI;
+package PlainTextEditor.gui;
+
+import PlainTextEditor.util.ClipboardManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MenuActionListener implements ActionListener {
 
@@ -23,6 +27,16 @@ public class MenuActionListener implements ActionListener {
                 boolean checked = item.getState();
                 textArea.setLineWrap(checked);
                 textArea.setWrapStyleWord(checked);
+                break;
+            case "Copy":
+                ClipboardManager.setSystemClipboardText(textArea.getSelectedText());
+                break;
+            case "Cut":
+                ClipboardManager.setSystemClipboardText(textArea.getSelectedText());
+                int start = textArea.getSelectionStart();
+                int end = textArea.getSelectionEnd();
+                String text = textArea.getText();
+                textArea.setText(text.substring(0, start) + text.substring(end));
                 break;
             case "Exit":
                 mainFrame.onWindowClosing();
@@ -51,11 +65,21 @@ public class MenuActionListener implements ActionListener {
                     mainFrame.openFile();
                 }
                 break;
+            case "Paste":
+                textArea.append(ClipboardManager.getSystemClipboardText());
+                break;
             case "Save":
                 mainFrame.saveFile();
                 break;
             case "Save as":
                 mainFrame.saveFileAs();
+                break;
+            case "Select All":
+                textArea.selectAll();
+                break;
+            case "Time and Date":
+                SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss yyyy/MM/dd");
+                textArea.append(format.format(new Date()));
                 break;
             case "Zoom in":
                 mainFrame.zoomIn();

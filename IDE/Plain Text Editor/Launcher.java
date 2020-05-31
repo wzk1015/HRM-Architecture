@@ -1,4 +1,4 @@
-import PlainTextEditor.GUI.MainFrame;
+import PlainTextEditor.gui.MainFrame;
 
 public class Launcher {
 
