@@ -102,17 +102,52 @@ public class ReplaceDialog extends JDialog {
         replaceWith = replaceInput.getText();
         caseSensitive = caseSensitiveBox.isSelected();
         loop = loopBox.isSelected();
-        //todo
-        new PopupAlertDialog("not implemented!");
+        String text = textArea.getText();
+        if (textArea.getSelectedText() != null) {
+            int start = textArea.getSelectionStart();
+            int end = textArea.getSelectionEnd();
+            if (text.substring(start, end).equals(findWhat)) {
+                textArea.setText(text.substring(0, start) + replaceWith + text.substring(end));
+                textArea.setCaretPosition(start + replaceWith.length());
+                return;
+            }
+        }
+        findNext();
+        int start = textArea.getSelectionStart();
+        int end = textArea.getSelectionEnd();
+        textArea.setText(text.substring(0, start) + replaceWith + text.substring(end));
+        textArea.setCaretPosition(start + replaceWith.length());
     }
 
     private void replaceAll() {
         findWhat = input.getText();
         replaceWith = replaceInput.getText();
         caseSensitive = caseSensitiveBox.isSelected();
-        loop = loopBox.isSelected();
-        //todo
-        new PopupAlertDialog("not implemented!");
+        String text = textArea.getText();
+        int caretPos = textArea.getCaretPosition();
+        int newPos = caretPos;
+        if (caseSensitive) {
+            int index = text.indexOf(findWhat);
+            while (index != -1) {
+                if (index <= caretPos) {
+                    newPos = index;
+                }
+                text = text.substring(0, index) + replaceWith + text.substring(index + findWhat.length());
+                index = text.indexOf(findWhat);
+            }
+        } else {
+            String findLower = findWhat.toLowerCase();
+            int index = text.toLowerCase().indexOf(findLower);
+            while (index != -1) {
+                if (index <= caretPos) {
+                    newPos = index;
+                }
+                text = text.substring(0, index) + replaceWith + text.substring(index + findLower.length());
+                index = text.toLowerCase().indexOf(findLower);
+            }
+        }
+        textArea.setText(text);
+        textArea.setCaretPosition(newPos);
     }
 
     public void callUp() {

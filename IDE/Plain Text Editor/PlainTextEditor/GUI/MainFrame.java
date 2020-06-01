@@ -71,7 +71,11 @@ public class MainFrame extends JFrame {
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
     private AtomicBoolean unsaved;
+    private AtomicBoolean undoable;
     private AtomicBoolean ctrlDown;
+
+    private String[] snapshot;
+    private int snapPos;
 
     private String title;
     private String filepath;
@@ -102,10 +106,13 @@ public class MainFrame extends JFrame {
         surviving.addAndGet(1);
         this.unsaved = new AtomicBoolean(false);
         this.ctrlDown = new AtomicBoolean(false);
+        this.undoable = new AtomicBoolean(false);
         this.title = "Untitled";
         this.filepath = null;
         this.encoding = "UTF-8";
         this.zoomRate = 100;
+        this.snapshot = new String[]{"", ""};
+        this.snapPos = 0;
     }
 
     private void initUI() {
@@ -278,6 +285,9 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                undoable.set(true);
+                snapshot[snapPos] = textArea.getText();
+                snapPos = 1 - snapPos;
                 updateMenuAvailability();
             }
 
@@ -287,6 +297,9 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                undoable.set(true);
+                snapshot[snapPos] = textArea.getText();
+                snapPos = 1 - snapPos;
                 updateMenuAvailability();
             }
 
@@ -296,6 +309,9 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                undoable.set(true);
+                snapshot[snapPos] = textArea.getText();
+                snapPos = 1 - snapPos;
                 updateMenuAvailability();
             }
         });
@@ -420,14 +436,10 @@ public class MainFrame extends JFrame {
                     break;
                 case FileSaveDialog.FSD_NOT:
                 case FileSaveDialog.FSD_SAVE:
-                    this.unsaved.set(false);
                     this.textArea.setText("");
                     this.title = "Untitled";
                     this.setTitle(title + " - Text Editor");
-                    //todo
-                    // out of unknown reason, after this the title of the windows
-                    // fails to react according to unsaved status
-                    // fix it later
+                    this.unsaved.set(false);
             }
         } else {
             this.textArea.setText("");
@@ -480,6 +492,10 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void undo() {
+        this.textArea.setText(snapshot[snapPos]);
+    }
+
     public void find() {
         if (findDialog == null) {
             synchronized (this) {
@@ -492,10 +508,24 @@ public class MainFrame extends JFrame {
     }
 
     public void findLast() {
+        if (findDialog == null) {
+            synchronized (this) {
+                if (findDialog == null) {
+                    findDialog = new FindDialog(this);
+                }
+            }
+        }
         findDialog.findLast();
     }
 
     public void findNext() {
+        if (findDialog == null) {
+            synchronized (this) {
+                if (findDialog == null) {
+                    findDialog = new FindDialog(this);
+                }
+            }
+        }
         findDialog.findNext();
     }
 
@@ -554,6 +584,7 @@ public class MainFrame extends JFrame {
             }
         } catch (Exception ignored) {
         }
+        undoMenuItem.setEnabled(undoable.get());
         pasteMenuItem.setEnabled(!ClipboardManager.isEmpty());
         if (textArea.getText().isEmpty()) {
             findMenuItem.setEnabled(false);

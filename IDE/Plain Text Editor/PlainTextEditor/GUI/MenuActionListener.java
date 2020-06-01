@@ -100,6 +100,7 @@ public class MenuActionListener implements ActionListener {
                 textArea.append(format.format(new Date()));
                 break;
             case "Undo":
+                mainFrame.undo();
                 break;
             case "Zoom in":
                 mainFrame.zoomIn();
