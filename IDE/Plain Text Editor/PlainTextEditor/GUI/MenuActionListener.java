@@ -33,6 +33,7 @@ public class MenuActionListener implements ActionListener {
                 break;
             case "Cut":
                 ClipboardManager.setSystemClipboardText(textArea.getSelectedText());
+            case "Delete":
                 int start = textArea.getSelectionStart();
                 int end = textArea.getSelectionEnd();
                 String text = textArea.getText();
@@ -40,6 +41,15 @@ public class MenuActionListener implements ActionListener {
                 break;
             case "Exit":
                 mainFrame.onWindowClosing();
+                break;
+            case "Find":
+                mainFrame.find();
+                break;
+            case "Find Last":
+                mainFrame.findLast();
+                break;
+            case "Find Next":
+                mainFrame.findNext();
                 break;
             case "Font":
                 new FontSettingsDialog(textArea.getFont(), textArea.getForeground(), mainFrame);
@@ -68,6 +78,9 @@ public class MenuActionListener implements ActionListener {
             case "Paste":
                 textArea.append(ClipboardManager.getSystemClipboardText());
                 break;
+            case "Replace":
+                mainFrame.replace();
+                break;
             case "Save":
                 mainFrame.saveFile();
                 break;
@@ -77,9 +90,16 @@ public class MenuActionListener implements ActionListener {
             case "Select All":
                 textArea.selectAll();
                 break;
+            case "Show Status Bar":
+                JCheckBoxMenuItem statusMenuItem = (JCheckBoxMenuItem) e.getSource();
+                boolean checkedFlag = statusMenuItem.getState();
+                mainFrame.setStatusBarVisible(checkedFlag);
+                break;
             case "Time and Date":
                 SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss yyyy/MM/dd");
                 textArea.append(format.format(new Date()));
+                break;
+            case "Undo":
                 break;
             case "Zoom in":
                 mainFrame.zoomIn();

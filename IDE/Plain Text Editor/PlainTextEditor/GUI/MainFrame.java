@@ -54,7 +54,7 @@ public class MainFrame extends JFrame {
     private final JMenuItem zoomInMenuItem = new JMenuItem("Zoom in");
     private final JMenuItem zoomOutMenuItem = new JMenuItem("Zoom out");
     private final JMenuItem zoomResetMenuItem = new JMenuItem("Reset");
-    private final JMenuItem statusMenuItem = new JMenuItem("Show Status Bar");
+    private final JCheckBoxMenuItem statusMenuItem = new JCheckBoxMenuItem("Show Status Bar");
 
     // help menu items
     private final JMenuItem aboutMenuItem = new JMenuItem("About");
@@ -62,6 +62,11 @@ public class MainFrame extends JFrame {
     private JTextArea textArea;
     private JLabel zoomRateLabel;
     private JLabel caretPositionLabel;
+
+    private JPanel statusBar;
+
+    private volatile FindDialog findDialog;
+    private volatile ReplaceDialog replaceDialog;
 
     private final MenuActionListener menuActionListener = new MenuActionListener();
 
@@ -200,6 +205,8 @@ public class MainFrame extends JFrame {
         zoomSubmenu.add(zoomOutMenuItem);
         zoomSubmenu.add(zoomResetMenuItem);
 
+        statusMenuItem.setSelected(true);
+
         zoomInMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, InputEvent.CTRL_DOWN_MASK));
         zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK));
         zoomResetMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_DOWN_MASK));
@@ -271,6 +278,7 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                updateMenuAvailability();
             }
 
             @Override
@@ -279,6 +287,7 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                updateMenuAvailability();
             }
 
             @Override
@@ -287,9 +296,13 @@ public class MainFrame extends JFrame {
                     MainFrame.this.setTitle("*" + title + " - Text Editor");
                     unsaved.set(true);
                 }
+                updateMenuAvailability();
             }
         });
-        textArea.getCaret().addChangeListener(e -> caretPositionLabel.setText(getCaretPositionString()));
+        textArea.getCaret().addChangeListener(e -> {
+            caretPositionLabel.setText(getCaretPositionString());
+            updateMenuAvailability();
+        });
         textArea.addMouseWheelListener(e -> {
             if (ctrlDown.get() && e.getWheelRotation() < 0) {
                 zoomIn();
@@ -300,7 +313,6 @@ public class MainFrame extends JFrame {
         textArea.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-
             }
 
             @Override
@@ -320,7 +332,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initStatusBar() {
-        JPanel statusBar = new JPanel();
+        statusBar = new JPanel();
         statusBar.setPreferredSize(new Dimension(0, 20));
         statusBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
         JLabel encodingLabel = new JLabel(this.encoding);
@@ -468,6 +480,36 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void find() {
+        if (findDialog == null) {
+            synchronized (this) {
+                if (findDialog == null) {
+                    findDialog = new FindDialog(this);
+                }
+            }
+        }
+        findDialog.callUp();
+    }
+
+    public void findLast() {
+        findDialog.findLast();
+    }
+
+    public void findNext() {
+        findDialog.findNext();
+    }
+
+    public void replace() {
+        if (replaceDialog == null) {
+            synchronized (this) {
+                if (replaceDialog == null) {
+                    replaceDialog = new ReplaceDialog(this);
+                }
+            }
+        }
+        replaceDialog.callUp();
+    }
+
     public void zoomIn() {
         if (zoomRate <= 190) {
             this.zoomRate += 10;
@@ -493,5 +535,34 @@ public class MainFrame extends JFrame {
         Font font = textArea.getFont();
         this.textArea.setFont(new Font(font.getName(), font.getStyle(), fontSize));
         this.zoomRateLabel.setText(zoomRate + "%");
+    }
+
+    public void setStatusBarVisible(boolean visibility) {
+        statusBar.setVisible(visibility);
+    }
+
+    public void updateMenuAvailability() {
+        try {
+            if (textArea.getSelectedText() == null) {
+                cutMenuItem.setEnabled(false);
+                copyMenuItem.setEnabled(false);
+                delMenuItem.setEnabled(false);
+            } else {
+                cutMenuItem.setEnabled(true);
+                copyMenuItem.setEnabled(true);
+                delMenuItem.setEnabled(true);
+            }
+        } catch (Exception ignored) {
+        }
+        pasteMenuItem.setEnabled(!ClipboardManager.isEmpty());
+        if (textArea.getText().isEmpty()) {
+            findMenuItem.setEnabled(false);
+            findLastMenuItem.setEnabled(false);
+            findNextMenuItem.setEnabled(false);
+        } else {
+            findMenuItem.setEnabled(true);
+            findLastMenuItem.setEnabled(true);
+            findNextMenuItem.setEnabled(true);
+        }
     }
 }
